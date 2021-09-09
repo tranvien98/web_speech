@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>Phần mềm nhận diện tiếng nói</title>
+<!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" /> -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script> -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- <link href="css/custom.css" rel="stylesheet" /> -->
+<script src="http://code.jquery.com/jquery.js"></script>
+<link rel="stylesheet" href="./static/style.css">
+<style type="text/css">
+</style>
+</head>
+<body>
+<div class="wrapper">
+    <h2 class="text-center" style="margin-top: 30px;">PHẦN MỀM NHẬN DẠNG TIẾNG NÓI</h2>
+    <div class="container" style="margin-top: 30px;">
+        <div id="menu">
+            <ul>
+            <li><a href="/">Tải từ máy tính</a></li>
+            <li><a href="/tab">Ghi Âm</a></li>
+            </ul>
+          </div>
+    </div>
+    <div>
+        <table id="mytable" style="background-color: aliceblue;" class="table table-striped">
+            <thead>
+              <tr>
+                <th style="text-align: center; width: 30%;"  scope="col">Thời gian</th>
+                <th style="text-align: center; width: 70%;" scope="col">Câu</th>
+
+              </tr>
+            </thead>
+            <tbody>
+            {% for line in lyrics %}
+            <tr>
+            <td contenteditable='true'>{{line[:10]}}</td>
+            <td contenteditable='true'>{{line[10:]}}</td>
+            </tr>
+            </tbody>
+            {%endfor%}
+        </table>
+    </div>
+    <form action="/" method="POST">
+    <button style="width: 120px;" type="submit" onclick="edit()" class="btn btn-primary">Lưu lại</button>
+    </form>
+
+</div>
+<footer>
+</footer>
+<script>
+function edit() {
+    var table = document.getElementById('mytable');
+    var newArr = new Array();
+    for (var r = 1, n = table.rows.length; r < n; r++) {
+        newArr.push(table.rows[r].cells[0].innerHTML + table.rows[r].cells[1].innerHTML);
+
+    };
+    // console.log(newArr);
+    var sendInfo = {
+        lyrics: newArr
+    };
+    $.ajax({
+            url: '/edit_lyrics',
+            type: 'post',
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (response) {
+                console.log(response);
+            },
+            error: function (response) {
+                console.log(response);
+            },
+            data: JSON.stringify(sendInfo)
+        });
+}
+</script>
+</body>
+</html>
