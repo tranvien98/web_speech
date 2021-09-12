@@ -68,7 +68,7 @@
         <div class="row content">
             <div class="col-12">
                 <!-- <textarea id="values" rows="12" class="form-control"></textarea> -->
-                <a id="saveToFile" href="/edit" style="width: 100px;" class="btn btn-primary float-right">Sửa</a>
+                <a id="saveToFile" href="/edit?file_audio={{file_audio}}" style="width: 100px;" class="btn btn-primary float-right">Sửa</a>
             </div>
             <div class="well col-12">
                 <div id="inputTextToSave" style="overflow: scroll; background: white; height: 300px">
@@ -113,7 +113,7 @@ $(".custom-file-input").on("change", function() {
 <script>
 var textFromFileLoaded = {{lyrics|safe}};
 loadFileAsText()
-console.log(textFromFileLoaded);
+// console.log(textFromFileLoaded);
 String.prototype.replaceAll = function(strTarget, strSubString){
   var strText = this;
   var intIndexOfMatch = strText.indexOf( strTarget );
@@ -166,53 +166,13 @@ function pauseSong() {
   }
 }
 
-
-function formatCurrentTime(time) {
-  var hr  = Math.floor(time / 3600);
-  var minutes = Math.floor((time - (hr * 3600))/60);
-  var seconds = Math.floor(time - (hr * 3600) - (minutes * 60));
-  var ms = Math.floor(time * 1000);
-
-  if (minutes < 10) {
-    minutes = "0" + minutes;
-  }
-  if (seconds < 10) {
-    seconds = "0" + seconds;
-  }
-  if (ms < 10) { // 0
-    ms = "0" + ms;
-  }
-  if (10 <= ms < 100) { //00
-    var convMsToString = ms.toString().slice(0);
-    ms = "0" + convMsToString;
-  }
-  if (100 <= ms < 1000) { //000
-    var convMsToString = ms.toString().slice(-3, -1);
-    ms = convMsToString;
-  }
-  return "[" + minutes + ':' + seconds + '.' + ms + "]";
-}
-
-function timeToInt(time) {
-  var timeMinute = time.slice(1, 3);
-  var timeSecond = time.slice(4, 6);
-  var timeMs = time.slice(7, 9);
-  var result = parseInt(timeMinute)+parseInt(timeSecond)+parseInt(timeMs);
-  return result;
-}
-
-function parseTiming(time) {
-  var initStart = time.replace("[", "");
-  var initEnd = initStart.replace("]", "");
-  return initEnd
-}
-
 function loadFileAsText(){
   var showLyricHtml = parseShowLyrics(textFromFileLoaded);
   var addStyleLyric = new Array();
   var linesongid = 1;
+  // console.log(showLyricHtml);
   showLyricHtml.forEach(result => {
-    result = "<span class='lineRunLyric' id='linesongid"+ linesongid +"'>" +result[0] + "</span>";
+    result = "<span class='lineRunLyric' id='linesongid"+ linesongid +"'>" +result[2] + "</span>";
     linesongid++;
     addStyleLyric.push(result);
   })
@@ -255,12 +215,7 @@ function runLyric(str) {
     myAudio.currentTime = 0;
     var getCurrentTime = formatCurrentTime(myAudio.currentTime);
     var getDuration = formatCurrentTime(myAudio.duration);
-    var showTiming = parseTiming(getCurrentTime);
-    var showDuration = parseTiming(getDuration);
     var showCurTimeSong = document.querySelectorAll(".showCurrentTimeSong");
-    for (let i = 0; i < showCurTimeSong.length; i++) {
-      showCurTimeSong[i].innerHTML = showTiming+" / "+showDuration;
-    }
     clearInterval(intervalObj);
     textFromFileLoaded = "";
     document.getElementById("inputTextToSave").innerHTML = "<p><p>"
@@ -268,7 +223,7 @@ function runLyric(str) {
   });
 
   myAudio.addEventListener("ended", function(){
-    console.log(str);
+    // console.log(str);
     var timeLyric = parseLyrics(str);
     var totalLyric = timeLyric.length;
     for (var index = 1; index <= totalLyric; index++) {
@@ -286,15 +241,9 @@ function runLyric(str) {
   // console.log("fsdfds");
   var intervalObj = setInterval(function(){
 
-    var getCurrentTime = formatCurrentTime(myAudio.currentTime);
-    var getDuration = formatCurrentTime(myAudio.duration);
-    var showTiming = parseTiming(getCurrentTime);
-    var showDuration = parseTiming(getDuration);
+    var getCurrentTime = parseFloat(myAudio.currentTime);
     var timeLyric = parseLyrics(str);
     var showCurTimeSong = document.querySelectorAll(".showCurrentTimeSong");
-    for (let i = 0; i < showCurTimeSong.length; i++) {
-      showCurTimeSong[i].innerHTML = showTiming+" / "+showDuration;
-    }
 
     if (myAudio.currentTime == 0) {
       for (var index = 1; index <= timeLyric.length; index++) {
@@ -305,29 +254,28 @@ function runLyric(str) {
     // console.log(timeLyric);
     var linesongidBE = 1;
     timeLyric.forEach(result => {
-      switch (result[0]) {
-        case getCurrentTime:
-          var lineLyricChange;
-          var totalLyric = parseLyrics(str).length;
-          console.log("fsdfds");
-          for (let index = 1; index < linesongidBE; index++) {
-            lineLyricChange = document.getElementById("linesongid"+index);
-            lineLyricChange.style.color = "#8d6e63";
-          }
-          for (let index = (linesongidBE+1); index <= totalLyric; index++) {
-            lineLyricChange = document.getElementById("linesongid"+index);
-            lineLyricChange.style.color = "black";
-          }
+      start = parseFloat(result[0]);
+      end = parseFloat(result[1]);
+      if (getCurrentTime > start){
+        var lineLyricChange;
+        var totalLyric = parseLyrics(str).length;
+        // console.log(totalLyric);
+        for (let index = 1; index < linesongidBE; index++) {
+          lineLyricChange = document.getElementById("linesongid"+index);
+          lineLyricChange.style.color = "#8d6e63";
+        }
+        for (let index = (linesongidBE+1); index <= totalLyric; index++) {
+          lineLyricChange = document.getElementById("linesongid"+index);
+          lineLyricChange.style.color = "black";
+        }
 
-          var lineLyricStart = document.getElementById("linesongid"+linesongidBE);
-          var lineLyricPass = document.getElementById("linesongid"+(linesongidBE -1))
-          lineLyricStart.style.color = "blue";
-          if (lineLyricPass) {
-            lineLyricPass.style.color = "#8d6e63";
-          }
-          // window.scrollBy(0, 10);
-          break;
-      };
+        var lineLyricStart = document.getElementById("linesongid"+linesongidBE);
+        var lineLyricPass = document.getElementById("linesongid"+(linesongidBE -1))
+        lineLyricStart.style.color = "blue";
+        if (lineLyricPass) {
+          lineLyricPass.style.color = "#8d6e63";
+        }
+        };
       linesongidBE++;
     });
   }, 5)
@@ -363,17 +311,21 @@ function parseLyrics(lyricImport) {
 
   var newArr = new Array();
   sPlit.forEach(element => {
-    var startToReplace = element.slice(0, 10).toString();
-    var endToReplace = element.slice(10).toString();
-    var setSplit = ",,,,,,,, ,,,,,"
-    element = startToReplace + setSplit + endToReplace;
-    var createArr = element.split(setSplit)
+    var array_lyrics = element.split(']')
+    var array_time = array_lyrics[0].split(',')
+    var start_time = array_time[0].replace('[', '')
+    var end_time = array_time[1].replace(']', '')
+    var lyric = array_lyrics[1]
+    var setSplit = ",,,.,,,"
+    element = start_time + setSplit + end_time + setSplit + lyric;
+
+    var createArr = element.split(setSplit);
     newArr.push(createArr);
   });
   
   var newArr1 = new Array();
   newArr.forEach(result => {
-    if (result[1] !== "") {
+    if (result[2] !== "") {
       newArr1.push(result)
     }
   });
@@ -381,13 +333,10 @@ function parseLyrics(lyricImport) {
 }
 
 function parseShowLyrics(lyricImport) {
-  var showLyricHtml = parseLyrics(lyricImport)
-  var newArr = new Array();
-  showLyricHtml.forEach(result => {
-    result.shift();
-    newArr.push(result);
-  })
-  return newArr;
+  var showLyricHtml = parseLyrics(lyricImport);
+  // console.log(showLyricHtml);
+  // console.log(newArr);
+  return showLyricHtml;
 }
 
 </script>

@@ -33,7 +33,9 @@ def tabpage():
 
 @app.route('/edit', methods=['GET'])
 def editpage():
-    return render_template('edit.html', lyrics=session['lyrics'])
+    file_audio = request.args.get("file_audio")
+    # pritn
+    return render_template('edit.html', lyrics=session['lyrics'], file_audio=file_audio)
 
 @app.route('/detect', methods=["POST"])
 def detect():
@@ -44,7 +46,7 @@ def detect():
     # print(path_file)
     file.save(path_file)
     # gọi api dự đoán lyrics
-    lyrics = ["[00:00.06]Bài hát: Gặp Gỡ, Yêu Đương Và Được Bên Em","[00:02.66]Ca sĩ: Phan Mạnh Quỳnh","[00:08.06]Bài hát: Gặp Gỡ, Yêu Đương Và Được Bên Em","[00:10.66]Ca sĩ: Phan Mạnh Quỳnh"];
+    lyrics = ["[0.0, 2.36]Bài hát: Gặp Gỡ, Yêu Đương Và Được Bên Em","[2.37, 4.18]Ca sĩ: Phan Mạnh Quỳnh","[4.19, 8.0]Bài hát: Gặp Gỡ, Yêu Đương Và Được Bên Em","[9.0, 15.3]Ca sĩ: Phan Mạnh Quỳnh"];
     session['path_file'] = path_file
     session['lyrics'] = lyrics
     return render_template('home.html', file_audio=path_file, lyrics=lyrics)
@@ -64,7 +66,7 @@ def return_files():
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
-    parser.add_argument('-p', '--port', default=5050,
+    parser.add_argument('-p', '--port', default=8080,
                         type=int, help='port to listen on')
     parser.add_argument('--host', default='0.0.0.0',
                         type=str, help='port to listen on')

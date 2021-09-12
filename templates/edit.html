@@ -26,6 +26,21 @@
           </div>
     </div>
     <div>
+        <div class="row">
+            <div class="col-2 sidenav hidden-xs">
+                <ul class="nav nav-pills nav-stacked">
+                    <li class="activeStartPause">
+                    <span onclick="playSong();" class="activeAction">Start</span>
+                    </li>
+                    <hr>
+                </ul>
+            </div>
+            <div class="col-10 text-center">
+                <audio id="audioSong" controls>
+                    <source src="{{file_audio}}" id="srcSong" />
+                  </audio>
+            </div>
+        </div>
         <table id="mytable" style="background-color: aliceblue;" class="table table-striped">
             <thead>
               <tr>
@@ -37,8 +52,8 @@
             <tbody>
             {% for line in lyrics %}
             <tr>
-            <td contenteditable='true'>{{line[:10]}}</td>
-            <td contenteditable='true'>{{line[10:]}}</td>
+            <td contenteditable='true'>{{line.split(']')[0].replace('[', '')}}</td>
+            <td contenteditable='true'>{{line.split(']')[1]}}</td>
             </tr>
             </tbody>
             {%endfor%}
@@ -56,7 +71,7 @@ function edit() {
     var table = document.getElementById('mytable');
     var newArr = new Array();
     for (var r = 1, n = table.rows.length; r < n; r++) {
-        newArr.push(table.rows[r].cells[0].innerHTML + table.rows[r].cells[1].innerHTML);
+        newArr.push('['+table.rows[r].cells[0].innerHTML +']'+ table.rows[r].cells[1].innerHTML);
 
     };
     // console.log(newArr);
@@ -76,6 +91,32 @@ function edit() {
             },
             data: JSON.stringify(sendInfo)
         });
+}
+</script>
+<script>
+
+function playSong() {
+
+  var actStartPause = document.querySelectorAll(".activeStartPause");
+  document.getElementById('audioSong').play();
+
+  for (let i = 0; i < actStartPause.length; i++) {
+    actStartPause[i].innerHTML = '<span onclick="pauseSong();" class="activeAction">Pause</span>';
+  }
+
+}
+
+function reloadPage(forceGet) {
+  location.reload(forceGet);
+}
+
+function pauseSong() {
+  document.getElementById("audioSong").pause();
+
+  var actStartPause = document.querySelectorAll(".activeStartPause");
+  for (let i = 0; i < actStartPause.length; i++) {
+    actStartPause[i].innerHTML = '<span onclick="playSong();" class="activeAction">Start</span>';
+  }
 }
 </script>
 </body>
