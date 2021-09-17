@@ -10,14 +10,15 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <!-- <link href="css/custom.css" rel="stylesheet" /> -->
 <script src="http://code.jquery.com/jquery.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="./static/style.css">
 <style type="text/css">
 </style>
 </head>
 <body>
 <div class="wrapper">
-    <h2 class="text-center" style="margin-top: 30px;">PHẦN MỀM NHẬN DẠNG TIẾNG NÓI</h2>
-    <div class="container" style="margin-top: 30px;">
+    <h2 class="text-center" style="margin-top: 20px;">PHẦN MỀM NHẬN DẠNG TIẾNG NÓI</h2>
+    <div class="container" style="margin-top: 10px;">
         <div id="menu">
             <ul>
             <li><a href="/">Tải từ máy tính</a></li>
@@ -26,16 +27,16 @@
           </div>
     </div>
 
-    <div style="margin-top: 20px;" class="container">
+    <div style="margin-top: 0px;" class="container">
         <div class="row">
             <div class="col-6">
-                <form name="inputFileMedia" action="/detect" method="post" enctype="multipart/form-data">
+                <form name="inputFileMedia" action="/detect_upload" method="post" enctype="multipart/form-data">
                     <div class="file-upload">
                         <div class="file-select">
                           <div class="file-select-button" id="fileName">Chọn File</div>
                           <div class="file-select-name" id="noFile">Chưa có file nào được chọn...</div> 
                           <!-- <input type="file" name="chooseFile" id="chooseFile"> -->
-                          <input type="file" class="form-control" rows="5" name="songImport" required id="fileSong" accept="audio/*">
+                          <input type="file" class="form-control" rows="5" name="songImport" required id="fileSong" accept="audio/*|video/*">
                         </div>
                       </div>
                     <div class="form-group">
@@ -44,14 +45,14 @@
                           <!-- <input type="file" class="form-control " rows="5" name="songImport" required id="fileSong" accept="audio/*"> -->
                         </div>
                       </div>
-                      <button class="btn btn-primary" id="submit" style="width: 150px;" type="submit">Nhận dạng</button>
+                      <button class="btn btn-primary" onclick="notifile()" id="submit" style="width: 150px;" type="submit">Nhận dạng</button>
                     </form>
                 
             </div>
             <div class="col-1 sidenav hidden-xs">
                 <ul class="nav nav-pills nav-stacked">
                     <li class="activeStartPause">
-                    <span onclick="playSong();" class="activeAction">Start</span>
+                    <span onclick="playSong();" class="activeAction">Phát</span>
                     </li>
                     <hr>
                 </ul>
@@ -68,17 +69,17 @@
         <div class="row content">
             <div class="col-12">
                 <!-- <textarea id="values" rows="12" class="form-control"></textarea> -->
-                <a id="saveToFile" href="/edit?file_audio={{file_audio}}" style="width: 100px;" class="btn btn-primary float-right">Sửa</a>
+                <a id="saveToFile" href="/edit?file_audio={{file_audio}}&classify=upload" style="width: 100px;" onclick="return check_valid()" class="btn btn-primary float-right">Sửa</a>
             </div>
             <div class="well col-12">
-                <div id="inputTextToSave" style="overflow: scroll; background: white; height: 300px">
+                <div id="inputTextToSave" style="overflow: scroll; background: white; height: 350px">
                 </div>
                 <!-- <script src="{{ url_for('static', filename = 'js.js', lyrics=lyrics)}}"></script> -->
             <!-- </div> -->
             </div>
             <div class="col-12">
                 <!-- <textarea id="values" rows="12" class="form-control"></textarea> -->
-                <a id="saveToFile" href="/export-files" class="btn btn-primary">Xuất file text</a>
+                <a id="saveToFile" onclick="return check_valid()" href="/export-files?classify=upload" class="btn btn-primary">Xuất file text</a>
             </div>
 
         </div>
@@ -111,23 +112,44 @@ $(".custom-file-input").on("change", function() {
 });
 </script>
 <script>
+var Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 5000
+});
+
+function notifile(){
+  var valSong = document.getElementById('fileSong').value;
+  if (valSong == "") {
+    Toast.fire({
+      title: 'Bạn chưa chọn file!',
+      icon: 'error',
+
+    })
+    return
+  }
+  // else {
+  Toast.fire({
+  title: 'Đang tiến hành nhận dạng!',
+  icon: 'info',
+    })
+  
+}
+
 var textFromFileLoaded = {{lyrics|safe}};
 loadFileAsText()
 // console.log(textFromFileLoaded);
-String.prototype.replaceAll = function(strTarget, strSubString){
-  var strText = this;
-  var intIndexOfMatch = strText.indexOf( strTarget );
-  // Keep looping while an instance of the target string
-  // still exists in the string.
-  while (intIndexOfMatch != -1){
-  // Relace out the current instance.
-  strText = strText.replace( strTarget, strSubString )
-  // Get the index of any next matching substring.
-  intIndexOfMatch = strText.indexOf( strTarget );
+function check_valid() {
+  if(textFromFileLoaded.length > 0){
+    console.log("true");
+    return true
   }
-  // Return the updated string with ALL the target strings
-  // replaced out with the new substring.
-  return( strText );
+  Toast.fire({
+  title: ' Đoạn văn bản nhận dạng trống !',
+  icon: 'error',
+    })
+  return false;
 }
 
 document.getElementById('fileSong').addEventListener("change", handleFiles, false);
@@ -145,7 +167,7 @@ function playSong() {
   document.getElementById('audioSong').play();
 
   for (let i = 0; i < actStartPause.length; i++) {
-    actStartPause[i].innerHTML = '<span onclick="pauseSong();" class="activeAction">Pause</span>';
+    actStartPause[i].innerHTML = '<span onclick="pauseSong();" class="activeAction">Dừng</span>';
   }
   setTimeout(function(){
   loadFileAsText();
@@ -162,7 +184,7 @@ function pauseSong() {
 
   var actStartPause = document.querySelectorAll(".activeStartPause");
   for (let i = 0; i < actStartPause.length; i++) {
-    actStartPause[i].innerHTML = '<span onclick="playSong();" class="activeAction">Start</span>';
+    actStartPause[i].innerHTML = '<span onclick="playSong();" class="activeAction">Phát</span>';
   }
 }
 
@@ -263,6 +285,7 @@ function runLyric(str) {
         for (let index = 1; index < linesongidBE; index++) {
           lineLyricChange = document.getElementById("linesongid"+index);
           lineLyricChange.style.color = "#8d6e63";
+          
         }
         for (let index = (linesongidBE+1); index <= totalLyric; index++) {
           lineLyricChange = document.getElementById("linesongid"+index);
@@ -272,8 +295,10 @@ function runLyric(str) {
         var lineLyricStart = document.getElementById("linesongid"+linesongidBE);
         var lineLyricPass = document.getElementById("linesongid"+(linesongidBE -1))
         lineLyricStart.style.color = "blue";
+        lineLyricStart.style.fontWeight = "bold";
         if (lineLyricPass) {
           lineLyricPass.style.color = "#8d6e63";
+          lineLyricPass.style.fontWeight = "normal";
         }
         };
       linesongidBE++;

@@ -113,19 +113,16 @@ function createDownloadLink(blob) {
 
     var url = URL.createObjectURL(blob);
     var au = document.getElementById("audio_record");
-    var link = document.getElementById("button_export");
+
 
     //name of .wav file to use during upload and download (without extendion)
     var filename = new Date().toISOString();
-
+    filename = filename+'.wav';
     //add controls to the <audio> element
     au.controls = true;
     au.src = url;
-
+    console.log(url)
     //save to disk link
-    link.href = url;
-    link.download = "record.wav"; //download forces the browser to donwload the file using the  filename
-    link.innerHTML = "Xuất file";
     var upload = document.getElementById("button_upload");
     upload.href="#";
     upload.innerHTML = "Nhận dạng";
@@ -136,10 +133,12 @@ function createDownloadLink(blob) {
                   console.log("Server returned: ",e.target.responseText);
               }
           };
+          console.log(url);
           var fd=new FormData();
           fd.append("audio_data",blob, filename);
-          xhr.open("POST","/",true);
+          xhr.open("POST","/upload_record",true);
           xhr.send(fd);
+         
     })
 
     // li.appendChild(document.createTextNode (" "))//add a space in between

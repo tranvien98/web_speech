@@ -2,8 +2,8 @@
     margin: 0;
     padding: 0;
 }
-body { 
-    font-family: Helvetica, Arial, Tahoma, sans-serif;
+body {
+  font-family: Arial, Tahoma, sans-serif;
   font-size: 16px;
   background: #d0e6ef; 
   color: #000;
@@ -32,6 +32,11 @@ button {
     width: 40px;
     height: 40px;
     float: left;
+}
+
+#mytable {
+  background-color: white;
+  font-size: 18px;
 }
 #audio-player-container {
   --seek-before-width: 0%;
@@ -72,10 +77,11 @@ button {
 p {
     /* position: absolute; */
     /* top: -18px;
-    right: 5%;
+    /* right: 5%;*/
+    
     padding: 0 5px;
-    margin: 0; */
-    font-size: 16px;
+    margin: 20px; 
+    font-size: 18px;
     background: #fff;
 }
 #play-icon {
@@ -146,8 +152,18 @@ output {
     color: #333;
   }
   /* controls audio */
+
 audio::-webkit-media-controls-play-button {
   display: none !important;
+}
+audio::-webkit-media-controls-enclosure {
+  border-radius: 0px;
+  background-color: white;
+  margin-bottom: 10px;
+  /* padding-bottom: 25px; */
+}
+audio::-webkit-media-controls-panel {
+  border-radius: 0px;
 }
 /* audio::-webkit-media-controls-mute-button {
   display: none !important;
