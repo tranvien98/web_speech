@@ -55,18 +55,20 @@
         <h3 style="text-align: center; margin-top: 10px;">Đoạn văn được dự đoán</h3>
         <div class="row content">
             <div class="col-12">
+
+              <a id="saveToFile" href="/edit?file_audio={{file_audio}}&classify=record" style="width: 100px; margin-left: 20px;"
+              onclick="return check_valid()" class="btn btn-primary float-right">Sửa</a>
+
+              <a id="saveToFile" onclick="return check_valid()" href="/export-files?classify=record" 
+              class="btn btn-primary float-right">Xuất file text</a>
                 <!-- <textarea id="values" rows="12" class="form-control"></textarea> -->
-                <a id="saveToFile" href="/edit?file_audio={{file_audio}}&classify=record" style="width: 100px;" onclick="return check_valid()" class="btn btn-primary float-right">Sửa</a>
+
             </div>
             <div class="well col-12">
-                <div id="inputTextToSave" style="overflow: scroll; background: white; height: 350px">
+                <div id="inputTextToSave" style="overflow: scroll; background: white; height: 450px">
                 </div>
                 <!-- <script src="{{ url_for('static', filename = 'js.js', lyrics=lyrics)}}"></script> -->
             <!-- </div> -->
-            </div>
-            <div class="col-12">
-                <!-- <textarea id="values" rows="12" class="form-control"></textarea> -->
-                <a id="saveToFile" onclick="return check_valid()" href="/export-files?classify=record" class="btn btn-primary">Xuất file text</a>
             </div>
 
         </div>
@@ -250,16 +252,16 @@ function runLyric(str) {
         }
         for (let index = (linesongidBE+1); index <= totalLyric; index++) {
           lineLyricChange = document.getElementById("linesongid"+index);
-          lineLyricChange.style.color = "black";
+          lineLyricChange.style.color = "blue";
         }
 
         var lineLyricStart = document.getElementById("linesongid"+linesongidBE);
         var lineLyricPass = document.getElementById("linesongid"+(linesongidBE -1))
-        lineLyricStart.style.color = "blue";
-        lineLyricStart.style.fontWeight = "bold";
+        lineLyricStart.style.color = "#FF4000";
+        // lineLyricStart.style.fontWeight = "bold";
         if (lineLyricPass) {
           lineLyricPass.style.color = "#8d6e63";
-          lineLyricPass.style.fontWeight = "normal";
+          // lineLyricPass.style.fontWeight = "normal";
         }
         };
       linesongidBE++;

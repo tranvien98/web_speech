@@ -27,37 +27,47 @@
     </div>
     <div>
         <div class="row">
-            <div class="col-2 sidenav hidden-xs">
-                <ul class="nav nav-pills nav-stacked">
-                    <li class="activeStartPause">
-                    <span onclick="playSong();" class="activeAction">Phát</span>
-                    </li>
-                    <hr>
-                </ul>
-            </div>
-            <div class="col-10 text-center">
-                <audio id="audioSong" controls>
+          <div style="background-color: white; height: 45px; text-align: center; padding-top: 10px;"
+           class="col-2 float-right ">
+            <span id="tracktime"> 00.00 / 00.00</span>
+          </div>
+            <div class="col-9 text-center">
+                <audio id="audioSong" class="audio_hide" controls 
+                ontimeupdate="document.getElementById('tracktime').innerHTML = formatCurrentTime(this.currentTime) + ' / ' + formatCurrentTime(Math.floor(this.duration));">
                     <source src="{{file_audio}}" id="srcSong" />
-                  </audio>
-            </div>
+                </audio>
+              </div>
+            <div class="col-1 sidenav hidden-xs">
+              <ul class="nav nav-pills nav-stacked">
+                  <li class="activeStartPause">
+                  <span onclick="playSong();" class="activeAction">Phát</span>
+                  </li>
+                  <hr>
+              </ul>
+          </div>
         </div>
-        <table id="mytable" style="background-color: white;" class="table table-bordered">
-            <thead>
-              <tr>
-                <th style="text-align: center; width: 30%;"  scope="col">Thời gian</th>
-                <th style="text-align: center; width: 70%;" scope="col">Câu</th>
+        <div class="row">
+          <table id="mytable" style="background-color: white;" class="table table-bordered">
+              <thead>
+                <tr>
+                  <th style="text-align: center; width: 30%;"  scope="col">Thời gian</th>
+                  <th style="text-align: center; width: 60%;" scope="col">Câu</th>
+                  <th style="text-align: center; width: 10%;" scope="col">Đoạn âm</th>
 
+                </tr>
+              </thead>
+              <tbody>
+              {% for line in lyrics %}
+              <tr>
+              <td  contenteditable='false'>{{line.split(']')[0].replace('[', '')}}</td>
+              <td contenteditable='true'>{{line.split(']')[1]}}</td>
+              <td contenteditable='false'><button style="width: 80px;" id="button_{{loop.index}}" onclick="playPartSong({{loop.index}});" class="btn btn-info">Phát</button></td>
               </tr>
-            </thead>
-            <tbody>
-            {% for line in lyrics %}
-            <tr>
-            <td contenteditable='true'>{{line.split(']')[0].replace('[', '')}}</td>
-            <td contenteditable='true'>{{line.split(']')[1]}}</td>
-            </tr>
-            </tbody>
-            {%endfor%}
-        </table>
+              </tbody>
+              {%endfor%}
+          </table>
+        </div>
+
     </div>
     <a style="width: 120px;" href="/save_edit?classify={{classify}}" type="submit" onclick="edit()" class="btn btn-primary">Lưu lại</a>
 
@@ -65,11 +75,40 @@
 <footer>
 </footer>
 <script>
+function set_time(index) {
+  console.log(index);
+}
+
+function formatCurrentTime(time) {
+  var seconds = Math.floor(time);
+  var ms = Math.floor(time * 1000);
+  if (seconds < 10) {
+    seconds = "0" + seconds;
+  }
+  if (ms < 10) { // 0
+    ms = "0" + ms;
+  }
+  if (10 <= ms < 100) { //00
+    var convMsToString = ms.toString().slice(0);
+    ms = "0" + convMsToString;
+  }
+  if (100 <= ms < 1000) { //000
+    var convMsToString = ms.toString().slice(-3, -1);
+    ms = convMsToString;
+  }
+  return  seconds + '.' + ms;
+}
+
+
 function edit() {
     var table = document.getElementById('mytable');
     var newArr = new Array();
     for (var r = 1, n = table.rows.length; r < n; r++) {
-        newArr.push('['+table.rows[r].cells[0].innerHTML +']'+ table.rows[r].cells[1].innerHTML);
+      var text1 = table.rows[r].cells[0].innerHTML.trim()
+      var text2 = table.rows[r].cells[1].innerHTML.trim()
+      text2 = text2.replace("&nbsp;", "").replace("<br>", "").trim();
+      console.log(text2);
+      newArr.push('['+text1+']'+ text2 );
 
     };
     // console.log(newArr);
@@ -93,6 +132,27 @@ function edit() {
 }
 </script>
 <script>
+
+function playPartSong(index) {
+  var actStartPause = document.querySelectorAll(".activeStartPause");
+  audio = document.getElementById('audioSong');
+  var table = document.getElementById('mytable');
+  var newArr = new Array();
+  for (var r = 1, n = table.rows.length; r < n; r++) {
+    if (r == index){
+      var text1 = table.rows[r].cells[0].innerHTML.trim().split(',')[0];
+      audio.currentTime= parseFloat(text1);
+      console.log(text1);
+      audio.play();
+    }
+  }
+  for (let i = 0; i < actStartPause.length; i++) {
+    actStartPause[i].innerHTML = '<span onclick="pauseSong();" class="activeAction">Dừng</span>';
+  }
+
+
+
+}
 
 function playSong() {
 

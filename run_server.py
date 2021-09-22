@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, send_file
+from flask import Flask, render_template, request, jsonify, send_file
 import os
 import time
 
@@ -8,9 +8,19 @@ UPLOAD = './static/files'
 app = Flask(__name__)
 # app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config["SECRET_KEY"] = b'_5#y2L"F4Q8z\n\xec]/'
+# Tạo biến lưu dữ liệu thay vì sử dụng database hay từ điển
+data = {}
+data['path_file'] = "" # đường dẫn file upload
+data['lyrics'] = [] # đoạn văn dự đoán 
+data['record'] = 0 # ghi nhớ upload file
+data['edit_lyrics'] = 0 # ghi nhớ upload file ghi âm
+data['path_file_record'] = "" # đường dẫn file ghi âm
+data['lyrics_record'] = [] # đoạn văn dự đoán từ file ghi âm
+
 
 @app.route('/detect_upload', methods=["POST"])
 def detect_upload():
+    global data
     # print(request.files)
     file = request.files['songImport']
     file.stream.seek(0)
@@ -23,21 +33,26 @@ def detect_upload():
          '[20.03,24.02]tuy nhiên cũng qua đây thì cũng báo cáo lại quốc hội với chính phủ', \
              '[24.32,28.01]trong cái báo cáo của chính phủ cũng nên có thêm những cái chỉ tiêu', \
                  '[28.17,30.47]các đại biểu nhìn nhận cho nó phù hợp hơn']
-    session['path_file'] = path_file
-    session['lyrics'] = lyrics
+    data['path_file'] = path_file
+    data['lyrics'] = lyrics
     return render_template('home.html', file_audio=path_file, lyrics=lyrics)
 
 @app.route("/detect_record", methods=['POST', 'GET'])
 def detect_record():
+    global data
+    count = 0
     if request.method == "POST":
         # File record
         while True:
-            if 'record' in session.keys():
-                if session['record'] == 1:
-                    session['record'] = 0
+            count += 1
+            if count == 5000:
+                break
+            if 'record' in data.keys():
+                if data['record'] == 1:
+                    data['record'] = 0
                     break
             time.sleep(0.1)
-        path_file_record = session['path_file_record'] 
+        path_file_record = data['path_file_record'] 
         print(path_file_record)
         # Nhận dang file 
         lyrics_record = ['[0.0,10.97]cám ơn đoàn chủ tọa', \
@@ -46,7 +61,7 @@ def detect_record():
          '[20.03,24.02]tuy nhiên cũng qua đây', \
              '[24.32,28.01]trong cái báo cáo của chính phủ cũng nên có thêm những cái chỉ tiêu', \
                  '[28.17,30.47]các đại biểu nhìn nhận cho nó phù hợp hơn']
-        session['lyrics_record'] = lyrics_record
+        data['lyrics_record'] = lyrics_record
         return render_template('tab.html', file_audio=path_file_record, lyrics=lyrics_record)
 
 @app.route('/', methods=['GET', 'POST'])
@@ -55,8 +70,8 @@ def homepage():
     if remember != "POST":
         return render_template('home.html', file_audio="", lyrics=[])
     else:
-        path_file = session['path_file']
-        lyrics  = session['lyrics']
+        path_file = data['path_file']
+        lyrics  = data['lyrics']
         return render_template('home.html', file_audio=path_file, lyrics=lyrics)
 
 @app.route('/tab', methods=['GET', "POST"])
@@ -65,13 +80,24 @@ def tabpage():
     if remember != "POST":
         return render_template('tab.html', file_audio="", lyrics=[])
     else:
-        path_file_record = session['path_file_record']
-        lyrics_record  = session['lyrics_record']
+        path_file_record = data['path_file_record']
+        lyrics_record  = data['lyrics_record']
         return render_template('tab.html', file_audio=path_file_record, lyrics=lyrics_record)
 
 @app.route('/save_edit', methods=['GET'])
 def save_edit():
+    global data
+    count = 0
     classify = request.args.get('classify')
+    while True:
+        count += 1
+        if count == 2000:
+            break
+        if 'edit_lyrics' in data.keys():
+            if data['edit_lyrics'] == 1:
+                data['edit_lyrics'] = 0
+                break
+        time.sleep(0.1)
     if classify == 'upload':
         return redirect(url_for('homepage', remember='POST'))
     else:
@@ -79,15 +105,18 @@ def save_edit():
 
 @app.route('/edit_lyrics', methods=['POST'])
 def edit_lyrics():
+    global data
     # print(request.json)
     classify = request.args.get('classify')
     lyrics  = request.json['lyrics']
     if classify == 'upload':
         lyrics  = request.json['lyrics']
-        session['lyrics'] = lyrics
+        data['lyrics'] = lyrics
     else:
-        session['lyrics_record'] = lyrics
-    return jsonify({"success": "ok"}), 200      
+        data['lyrics_record'] = lyrics
+    data['edit_lyrics'] = 1
+    print(data['edit_lyrics'])
+    return jsonify({"success": "ok"}), 200   
 
 
 @app.route('/edit', methods=['GET'])
@@ -95,21 +124,22 @@ def editpage():
     classify = request.args.get('classify')
     if classify == 'upload':
         file_audio = request.args.get("file_audio")
-        return render_template('edit.html', lyrics=session['lyrics'], file_audio=file_audio, classify=classify)
+        return render_template('edit.html', lyrics=data['lyrics'], file_audio=file_audio, classify=classify)
     else:
         file_audio = request.args.get("file_audio")
-        return render_template('edit.html', lyrics=session['lyrics_record'], file_audio=file_audio, classify=classify)
+        return render_template('edit.html', lyrics=data['lyrics_record'], file_audio=file_audio, classify=classify)
 
 @app.route("/upload_record", methods=['POST', 'GET'])
 def upload_record():
+    global data
     if request.method == "POST":
-        session['record'] = 0
+        data['record'] = 0
         file = request.files['audio_data']
         file.stream.seek(0)
         path_file_record = os.path.join(UPLOAD, file.filename)
         file.save(path_file_record)
-        session['path_file_record'] = path_file_record
-        session['record'] = 1
+        data['path_file_record'] = path_file_record
+        data['record'] = 1
         print(path_file_record)
         return jsonify({'success': 'True'}), 200
 
@@ -118,19 +148,19 @@ def return_files():
     classify = request.args.get('classify')
     if classify == 'upload':
         res = []
-        file_name = session['path_file'].split('/')[-1]
-        for line in session['lyrics']:
+        file_name = data['path_file'].split('/')[-1]
+        for line in data['lyrics']:
             res.append(line.split(']')[-1])
-        path_txt = session['path_file'][:-3] + 'txt'
+        path_txt = data['path_file'][:-3] + 'txt'
         with open(path_txt, 'w', encoding='utf-8') as output:
             output.write(' '.join(res))
         return send_file(path_txt, attachment_filename= file_name[:-3] + 'txt', as_attachment=True)
     else:
         res = []
-        file_name = session['path_file_record'].split('/')[-1]
-        for line in session['lyrics_record']:
+        file_name = data['path_file_record'].split('/')[-1]
+        for line in data['lyrics_record']:
             res.append(line.split(']')[-1])
-        path_txt = session['path_file_record'][:-3] + 'txt'
+        path_txt = data['path_file_record'][:-3] + 'txt'
         with open(path_txt, 'w', encoding='utf-8') as output:
             output.write(' '.join(res))
         return send_file(path_txt, attachment_filename= file_name[:-3] + 'txt', as_attachment=True)
