@@ -4,12 +4,14 @@
 <meta charset="UTF-8"/>
 <title>Phần mềm nhận diện tiếng nói</title>
 <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" /> -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<link rel="stylesheet" href="./static/bootstrap/css/bootstrap.min.css">
+<script src="./static/js/jquery-3.6.0.min.js"></script>
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script> -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="./static/bootstrap/js/bootstrap.min.js"></script>
 <!-- <link href="css/custom.css" rel="stylesheet" /> -->
-<script src="http://code.jquery.com/jquery.js"></script>
+<script src="./static/js/jquery-3.6.0.js"></script>
+<script src="./static/js/sweetalert2.all.min.js"></script>
+<!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
 <link rel="stylesheet" href="./static/style.css">
 <style type="text/css">
 </style>
@@ -58,7 +60,7 @@
               </thead>
               <tbody>
               {% for line in lyrics %}
-              <tr>
+              <tr class="row_table">
               <td  contenteditable='false'>{{line.split(']')[0].replace('[', '')}}</td>
               <td contenteditable='true'>{{line.split(']')[1]}}</td>
               <td contenteditable='false'><button style="width: 80px;" id="button_{{loop.index}}" onclick="playPartSong({{loop.index}});" class="btn btn-info">Phát</button></td>
@@ -106,7 +108,7 @@ function edit() {
     for (var r = 1, n = table.rows.length; r < n; r++) {
       var text1 = table.rows[r].cells[0].innerHTML.trim()
       var text2 = table.rows[r].cells[1].innerHTML.trim()
-      text2 = text2.replace("&nbsp;", "").replace("<br>", "").trim();
+      text2 = text2.replaceAll("&nbsp;", "").replaceAll("<br>", "").trim();
       console.log(text2);
       newArr.push('['+text1+']'+ text2 );
 
@@ -136,10 +138,12 @@ function edit() {
 function playPartSong(index) {
   var actStartPause = document.querySelectorAll(".activeStartPause");
   audio = document.getElementById('audioSong');
+  var row_table = document.getElementsByClassName("row_table");
   var table = document.getElementById('mytable');
   var newArr = new Array();
   for (var r = 1, n = table.rows.length; r < n; r++) {
     if (r == index){
+      row_table[r-1].style.color = "#FF4000";
       var text1 = table.rows[r].cells[0].innerHTML.trim().split(',')[0];
       audio.currentTime= parseFloat(text1);
       console.log(text1);
@@ -170,8 +174,15 @@ function reloadPage(forceGet) {
 }
 
 function pauseSong() {
+  var row_table = document.getElementsByClassName("row_table")
+  for (let i = 0; i < row_table.length; i++) {
+    row_table[i].style.color = "black";
+  }
   document.getElementById("audioSong").pause();
-
+  var tr = document.getElementsByTagName("<tr>")
+  for (let i = 0; i < tr.length; i++) {
+    tr[i].style.color = "black";
+  }
   var actStartPause = document.querySelectorAll(".activeStartPause");
   for (let i = 0; i < actStartPause.length; i++) {
     actStartPause[i].innerHTML = '<span onclick="playSong();" class="activeAction">Phát</span>';
