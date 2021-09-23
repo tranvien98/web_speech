@@ -6,6 +6,7 @@
 <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" /> -->
 <link rel="stylesheet" href="./static/bootstrap/css/bootstrap.min.css">
 <script src="./static/js/jquery-3.6.0.min.js"></script>
+<link rel="shortcut icon" href="#">
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script> -->
 <script src="./static/bootstrap/js/bootstrap.min.js"></script>
 <!-- <link href="css/custom.css" rel="stylesheet" /> -->
@@ -140,22 +141,30 @@ function playPartSong(index) {
   audio = document.getElementById('audioSong');
   var row_table = document.getElementsByClassName("row_table");
   var table = document.getElementById('mytable');
+  var row_table = document.getElementsByClassName("row_table")
+  for (let i = 0; i < row_table.length; i++) {
+    row_table[i].style.color = "black";
+  }
+  var start = ""
+  var end = ""
   var newArr = new Array();
   for (var r = 1, n = table.rows.length; r < n; r++) {
     if (r == index){
       row_table[r-1].style.color = "#FF4000";
-      var text1 = table.rows[r].cells[0].innerHTML.trim().split(',')[0];
-      audio.currentTime= parseFloat(text1);
-      console.log(text1);
+      start = table.rows[r].cells[0].innerHTML.trim().split(',')[0];
+      end = table.rows[r].cells[0].innerHTML.trim().split(',')[1];
+      audio.currentTime= parseFloat(start);
+      console.log(start);
       audio.play();
     }
   }
   for (let i = 0; i < actStartPause.length; i++) {
     actStartPause[i].innerHTML = '<span onclick="pauseSong();" class="activeAction">Dừng</span>';
   }
-
-
-
+  setTimeout(function(){
+    runLyric(start, end);
+  }, 200); 
+  
 }
 
 function playSong() {
@@ -179,15 +188,49 @@ function pauseSong() {
     row_table[i].style.color = "black";
   }
   document.getElementById("audioSong").pause();
-  var tr = document.getElementsByTagName("<tr>")
-  for (let i = 0; i < tr.length; i++) {
-    tr[i].style.color = "black";
-  }
   var actStartPause = document.querySelectorAll(".activeStartPause");
   for (let i = 0; i < actStartPause.length; i++) {
     actStartPause[i].innerHTML = '<span onclick="playSong();" class="activeAction">Phát</span>';
   }
 }
+
+function runLyric(start, end) {
+  // clearInterval(intervalObj);
+  var myAudio = document.getElementById("audioSong");
+  var row_table = document.getElementsByClassName("row_table")
+  for (let i = 0; i < row_table.length; i++) {
+    row_table[i].addEventListener("click", function(){
+      clearInterval(intervalObj);
+      console.log("clearInterval1");
+    });
+  }
+  myAudio.addEventListener("ended", function(){
+    // console.log(str);
+    document.getElementById("audioSong").pause();
+    var actStartPause = document.querySelectorAll(".activeStartPause");
+    for (let i = 0; i < actStartPause.length; i++) {
+      actStartPause[i].innerHTML = '<span onclick="playSong();" class="activeAction">Phát</span>';
+    }
+    clearInterval(intervalObj);
+    console.log("clearInterval5");
+  });
+  // console.log("fsdfds");
+  var intervalObj = setInterval(function(){
+    var getCurrentTime = parseFloat(myAudio.currentTime);
+    if (getCurrentTime > end){
+      myAudio.pause();
+      for (let i = 0; i < row_table.length; i++) {
+        row_table[i].style.color = "black";
+      }
+      var actStartPause = document.querySelectorAll(".activeStartPause");
+      for (let i = 0; i < actStartPause.length; i++) {
+        actStartPause[i].innerHTML = '<span onclick="playSong();" class="activeAction">Phát</span>';
+      }
+      clearInterval(intervalObj);
+    }
+  }, 5)
+}
+
 </script>
 </body>
 </html>
