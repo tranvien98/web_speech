@@ -127,18 +127,19 @@ function createDownloadLink(blob) {
     upload.href="#";
     upload.innerHTML = "Nhận dạng";
     upload.addEventListener("click", function(event){
-          var xhr=new XMLHttpRequest();
-          xhr.onload=function(e) {
-              if(this.readyState === 4) {
-                  console.log("Server returned: ",e.target.responseText);
-              }
-          };
-          console.log(url);
-          var fd=new FormData();
-          fd.append("audio_data",blob, filename);
-          xhr.open("POST","/upload_record",true);
-          xhr.send(fd);
-         
+        var xhr=new XMLHttpRequest();
+        xhr.onload=function(e) {
+            if(this.readyState === 4) {
+                window.location.href = "/detect_record"
+                console.log("Server returned: ",e.target.responseText);
+            }
+        };
+        console.log(url);
+        var fd=new FormData();
+        fd.append("audio_data",blob, filename);
+        xhr.open("POST","/upload_record",true);
+        xhr.send(fd);
+        
     })
 
     // li.appendChild(document.createTextNode (" "))//add a space in between

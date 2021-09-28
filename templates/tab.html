@@ -1,23 +1,5 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="UTF-8"/>
-<title>Phần mềm nhận diện tiếng nói</title>
-<!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" /> -->
-<link rel="stylesheet" href="./static/bootstrap/css/bootstrap.min.css">
-<script src="./static/js/jquery-3.6.0.min.js"></script>
-<link rel="shortcut icon" href="#">
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script> -->
-<script src="./static/bootstrap/js/bootstrap.min.js"></script>
-<!-- <link href="css/custom.css" rel="stylesheet" /> -->
-<script src="./static/js/jquery-3.6.0.js"></script>
-<script src="./static/js/sweetalert2.all.min.js"></script>
-<!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
-<link rel="stylesheet" href="./static/style.css">
-<style type="text/css">
-</style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
 <div class="wrapper">
     <h2 class="text-center" style="margin-top: 30px;">PHẦN MỀM NHẬN DẠNG TIẾNG NÓI</h2>
     <div class="container" style="margin-top: 30px;">
@@ -49,9 +31,7 @@
                 </audio>
             </div>
             <div class="col-2">
-                <form action="/detect_record"  id="my_form"  onclick="return check_song()" method="POST">
-                    <button style="width: 120px;" id="button_upload" type="submit" class="btn btn-primary">Nhận dạng</button>
-                </form>
+                <button style="width: 120px;" onclick="return check_song()" id="button_upload" type="submit" class="btn btn-primary">Nhận dạng</button>
             </div>
         </div>
         <h3 style="text-align: center; margin-top: 10px;">Đoạn văn được dự đoán</h3>
@@ -77,8 +57,6 @@
 
     </div>
 </div>
-<footer>
-</footer>
 <script src="./static/js/recorder.js"></script>
 <script src="./static/script.js"></script>
 <script>
@@ -254,7 +232,7 @@ function runLyric(str) {
         }
         for (let index = (linesongidBE+1); index <= totalLyric; index++) {
           lineLyricChange = document.getElementById("linesongid"+index);
-          lineLyricChange.style.color = "blue";
+          lineLyricChange.style.color = "black";
         }
 
         var lineLyricStart = document.getElementById("linesongid"+linesongidBE);
@@ -329,5 +307,4 @@ function parseShowLyrics(lyricImport) {
   return showLyricHtml;
 }
 </script>
-</body>
-</html>
+{% endblock %}

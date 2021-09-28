@@ -1,23 +1,7 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="UTF-8"/>
-<title>Phần mềm nhận diện tiếng nói</title>
-<!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" /> -->
-<link rel="stylesheet" href="./static/bootstrap/css/bootstrap.min.css">
-<script src="./static/js/jquery-3.6.0.min.js"></script>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script> -->
-<script src="./static/bootstrap/js/bootstrap.min.js"></script>
-<!-- <link href="css/custom.css" rel="stylesheet" /> -->
-<link rel="shortcut icon" href="#">
-<script src="./static/js/jquery-3.6.0.js"></script>
-<script src="./static/js/sweetalert2.all.min.js"></script>
-<!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
-<link rel="stylesheet" href="./static/style.css">
-<style type="text/css">
-</style>
-</head>
-<body>
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
 <div class="wrapper">
     <h2 class="text-center" style="margin-top: 20px;">PHẦN MỀM NHẬN DẠNG TIẾNG NÓI</h2>
     <div class="container" style="margin-top: 10px;">
@@ -32,7 +16,7 @@
     <div style="margin-top: 0px;" class="container">
         <div class="row">
             <div class="col-6">
-                <form name="inputFileMedia" action="/detect_upload" method="post" enctype="multipart/form-data">
+                <form name="inputFileMedia" action="/detect_upload" method="POST" enctype="multipart/form-data">
                     <div class="file-upload">
                         <div class="file-select">
                           <div class="file-select-button" id="fileName">Chọn File</div>
@@ -48,7 +32,7 @@
                         </div>
                       </div>
                       <button class="btn btn-primary" onclick="notifile()" id="submit" style="width: 150px;" type="submit">Nhận dạng</button>
-                    </form>
+                </form>
                 
             </div>
             <div class="col-1 sidenav hidden-xs">
@@ -368,6 +352,4 @@ function parseShowLyrics(lyricImport) {
 }
 
 </script>
-</body>
-</body>
-</html>
+{% endblock %}

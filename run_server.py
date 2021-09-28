@@ -12,57 +12,56 @@ app.config["SECRET_KEY"] = b'_5#y2L"F4Q8z\n\xec]/'
 data = {}
 data['path_file'] = "" # đường dẫn file upload
 data['lyrics'] = [] # đoạn văn dự đoán 
-data['record'] = 0 # ghi nhớ upload file
-data['edit_lyrics'] = 0 # ghi nhớ upload file ghi âm
 data['path_file_record'] = "" # đường dẫn file ghi âm
 data['lyrics_record'] = [] # đoạn văn dự đoán từ file ghi âm
 
 
-@app.route('/detect_upload', methods=["POST"])
+@app.route('/detect_upload', methods=["POST", "GET"])
 def detect_upload():
+    """
+    Lưu file upload
+    """
     global data
-    # print(request.files)
     file = request.files['songImport']
     file.stream.seek(0)
     path_file = os.path.join(UPLOAD, file.filename)
-    # print(path_file)
     file.save(path_file)
     time.sleep(0.2)
-    # gọi api dự đoán lyrics
     lyrics = ['[0.0,10.97]cám ơn đoàn chủ tọa cơ hội chúng tôi xin phép trao đổi lại với đại biểu trần quang chiều cái vấn đề thứ nhất ý thì trong cái bài phát biểu tôi chỉ đề cập', '[11.4,13.27]là thống nhất với báo cáo của chính phủ', '[13.73,15.66]về cái việc mà chúng ta đang giảm', '[16.26,19.8]cái việc tăng lệ thuộc về dầu thô khoáng sản',\
          '[20.03,24.02]tuy nhiên cũng qua đây thì cũng báo cáo lại quốc hội với chính phủ', \
              '[24.32,28.01]trong cái báo cáo của chính phủ cũng nên có thêm những cái chỉ tiêu', \
                  '[28.17,30.47]các đại biểu nhìn nhận cho nó phù hợp hơn']
     data['path_file'] = path_file
     data['lyrics'] = lyrics
-    return render_template('home.html', file_audio=path_file, lyrics=lyrics)
+    return redirect(url_for('homepage', remember='POST'))
 
-@app.route("/detect_record", methods=['POST', 'GET'])
+@app.route("/detect_record", methods=['GET'])
 def detect_record():
     global data
-    count = 0
+    path_file_record = data['path_file_record'] 
+    lyrics_record = ['[0.0,10.97]cám ơn đoàn chủ tọa', \
+        '[11.4,13.27]là thống nhất ', '[13.73,15.66]về cái việc mà chúng ta đang giảm', \
+            '[16.26,19.8]cái việc tăng lệ thuộc về dầu thô khoáng sản',\
+        '[20.03,24.02]tuy nhiên cũng qua đây', \
+            '[24.32,28.01]trong cái báo cáo của chính phủ cũng nên có thêm những cái chỉ tiêu', \
+                '[28.17,30.47]các đại biểu nhìn nhận cho nó phù hợp hơn']
+    data['lyrics_record'] = lyrics_record
+    return render_template('tab.html', file_audio=path_file_record, lyrics=lyrics_record)
+
+@app.route("/upload_record", methods=['POST'])
+def upload_record():
+    """
+    Lưu file ghi âm 
+    """
+    global data
     if request.method == "POST":
-        # File record
-        while True:
-            count += 1
-            if count == 5000:
-                break
-            if 'record' in data.keys():
-                if data['record'] == 1:
-                    data['record'] = 0
-                    break
-            time.sleep(0.1)
-        path_file_record = data['path_file_record'] 
+        file = request.files['audio_data']
+        file.stream.seek(0)
+        path_file_record = os.path.join(UPLOAD, file.filename)
+        file.save(path_file_record)
+        data['path_file_record'] = path_file_record
         print(path_file_record)
-        # Nhận dang file 
-        lyrics_record = ['[0.0,10.97]cám ơn đoàn chủ tọa', \
-            '[11.4,13.27]là thống nhất ', '[13.73,15.66]về cái việc mà chúng ta đang giảm', \
-                '[16.26,19.8]cái việc tăng lệ thuộc về dầu thô khoáng sản',\
-         '[20.03,24.02]tuy nhiên cũng qua đây', \
-             '[24.32,28.01]trong cái báo cáo của chính phủ cũng nên có thêm những cái chỉ tiêu', \
-                 '[28.17,30.47]các đại biểu nhìn nhận cho nó phù hợp hơn']
-        data['lyrics_record'] = lyrics_record
-        return render_template('tab.html', file_audio=path_file_record, lyrics=lyrics_record)
+        return jsonify({'success': 'True'}), 200
 
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
@@ -86,18 +85,7 @@ def tabpage():
 
 @app.route('/save_edit', methods=['GET'])
 def save_edit():
-    global data
-    count = 0
     classify = request.args.get('classify')
-    while True:
-        count += 1
-        if count == 2000:
-            break
-        if 'edit_lyrics' in data.keys():
-            if data['edit_lyrics'] == 1:
-                data['edit_lyrics'] = 0
-                break
-        time.sleep(0.1)
     if classify == 'upload':
         return redirect(url_for('homepage', remember='POST'))
     else:
@@ -114,8 +102,6 @@ def edit_lyrics():
         data['lyrics'] = lyrics
     else:
         data['lyrics_record'] = lyrics
-    data['edit_lyrics'] = 1
-    print(data['edit_lyrics'])
     return jsonify({"success": "ok"}), 200   
 
 
@@ -128,20 +114,6 @@ def editpage():
     else:
         file_audio = request.args.get("file_audio")
         return render_template('edit.html', lyrics=data['lyrics_record'], file_audio=file_audio, classify=classify)
-
-@app.route("/upload_record", methods=['POST', 'GET'])
-def upload_record():
-    global data
-    if request.method == "POST":
-        data['record'] = 0
-        file = request.files['audio_data']
-        file.stream.seek(0)
-        path_file_record = os.path.join(UPLOAD, file.filename)
-        file.save(path_file_record)
-        data['path_file_record'] = path_file_record
-        data['record'] = 1
-        print(path_file_record)
-        return jsonify({'success': 'True'}), 200
 
 @app.route('/export-files')
 def return_files():

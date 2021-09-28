@@ -1,23 +1,5 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="UTF-8"/>
-<title>Phần mềm nhận diện tiếng nói</title>
-<!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" /> -->
-<link rel="stylesheet" href="./static/bootstrap/css/bootstrap.min.css">
-<script src="./static/js/jquery-3.6.0.min.js"></script>
-<link rel="shortcut icon" href="#">
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script> -->
-<script src="./static/bootstrap/js/bootstrap.min.js"></script>
-<!-- <link href="css/custom.css" rel="stylesheet" /> -->
-<script src="./static/js/jquery-3.6.0.js"></script>
-<script src="./static/js/sweetalert2.all.min.js"></script>
-<!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
-<link rel="stylesheet" href="./static/style.css">
-<style type="text/css">
-</style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
 <div class="wrapper">
     <h2 class="text-center" style="margin-top: 30px;">PHẦN MỀM NHẬN DẠNG TIẾNG NÓI</h2>
     <div class="container" style="margin-top: 30px;">
@@ -72,7 +54,7 @@
         </div>
 
     </div>
-    <a style="width: 120px;" href="/save_edit?classify={{classify}}" type="submit" onclick="edit()" class="btn btn-primary">Lưu lại</a>
+    <a style="width: 120px;" href="#" type="submit" onclick="edit()" class="btn btn-primary">Lưu lại</a>
 
 </div>
 <footer>
@@ -110,7 +92,7 @@ function edit() {
       var text1 = table.rows[r].cells[0].innerHTML.trim()
       var text2 = table.rows[r].cells[1].innerHTML.trim()
       text2 = text2.replaceAll("&nbsp;", "").replaceAll("<br>", "").trim();
-      console.log(text2);
+      // console.log(text2);
       newArr.push('['+text1+']'+ text2 );
 
     };
@@ -126,9 +108,11 @@ function edit() {
             contentType: 'application/json',
             success: function (response) {
                 console.log(response);
+                window.location.href = "/save_edit?classify="+classify
             },
             error: function (response) {
                 console.log(response);
+                //save_edit?classify={{classify}}
             },
             data: JSON.stringify(sendInfo)
         });
@@ -232,5 +216,4 @@ function runLyric(start, end) {
 }
 
 </script>
-</body>
-</html>
+{% endblock %}
