@@ -16,6 +16,26 @@ data['path_file_record'] = "" # đường dẫn file ghi âm
 data['lyrics_record'] = [] # đoạn văn dự đoán từ file ghi âm
 
 
+@app.route('/api/detect_upload', methods=["POST"])
+def api_detect_upload():
+    """
+    Lưu file upload
+    """
+    res = {}
+    file = request.files['songImport']
+    file.stream.seek(0)
+    path_file = os.path.join(UPLOAD, file.filename)
+    file.save(path_file)
+    create_at = str(time.time())
+    lyrics = ['[0.0,10.97]cám ơn đoàn chủ tọa cơ hội chúng tôi xin phép trao đổi lại với đại biểu trần quang chiều cái vấn đề thứ nhất ý thì trong cái bài phát biểu tôi chỉ đề cập', '[11.4,13.27]là thống nhất với báo cáo của chính phủ', '[13.73,15.66]về cái việc mà chúng ta đang giảm', '[16.26,19.8]cái việc tăng lệ thuộc về dầu thô khoáng sản',\
+         '[20.03,24.02]tuy nhiên cũng qua đây thì cũng báo cáo lại quốc hội với chính phủ', \
+             '[24.32,28.01]trong cái báo cáo của chính phủ cũng nên có thêm những cái chỉ tiêu', \
+                 '[28.17,30.47]các đại biểu nhìn nhận cho nó phù hợp hơn']
+    res['path_file'] = path_file
+    res['lyrics'] = lyrics
+    res['success'] = "True"
+    return jsonify(res), 200
+
 @app.route('/detect_upload', methods=["POST", "GET"])
 def detect_upload():
     """
