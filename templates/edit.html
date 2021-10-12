@@ -1,60 +1,62 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="wrapper">
+  <div class="container" style="background-color: #d0e6ef;position: fixed; top: 0;">
     <h2 class="text-center" style="margin-top: 30px;">PHẦN MỀM NHẬN DẠNG TIẾNG NÓI</h2>
-    <div class="container" style="margin-top: 30px;">
-        <div id="menu">
+    <div >
+        <div class="row" id="menu">
             <ul>
             <li><a href="/">Tải từ máy tính</a></li>
             <li><a href="/tab">Ghi Âm</a></li>
             </ul>
           </div>
     </div>
-    <div>
-        <div class="row">
-          <div style="background-color: white; height: 45px; text-align: center; padding-top: 10px;"
-           class="col-2 float-right ">
-            <span id="tracktime"> 00.00 / 00.00</span>
+    <div class="row"  >
+      <div style="background-color: white; height: 45px; text-align: center; padding-top: 10px;"
+       class="col-2 float-right ">
+        <span id="tracktime"> 00.00 / 00.00</span>
+      </div>
+        <div class="col-9 text-center">
+            <audio id="audioSong" class="audio_hide" controls 
+            ontimeupdate="document.getElementById('tracktime').innerHTML = formatCurrentTime(this.currentTime) + ' / ' + formatCurrentTime(Math.floor(this.duration));">
+                <source src="{{file_audio}}" id="srcSong" />
+            </audio>
           </div>
-            <div class="col-9 text-center">
-                <audio id="audioSong" class="audio_hide" controls 
-                ontimeupdate="document.getElementById('tracktime').innerHTML = formatCurrentTime(this.currentTime) + ' / ' + formatCurrentTime(Math.floor(this.duration));">
-                    <source src="{{file_audio}}" id="srcSong" />
-                </audio>
-              </div>
-            <div class="col-1 sidenav hidden-xs">
-              <ul class="nav nav-pills nav-stacked">
-                  <li class="activeStartPause">
-                  <span onclick="playSong();" class="activeAction">Phát</span>
-                  </li>
-                  <hr>
-              </ul>
-          </div>
-        </div>
-        <div class="row">
-          <table id="mytable" style="background-color: white;" class="table table-bordered">
-              <thead>
-                <tr>
-                  <th style="text-align: center; width: 30%;"  scope="col">Thời gian</th>
-                  <th style="text-align: center; width: 60%;" scope="col">Câu</th>
-                  <th style="text-align: center; width: 10%;" scope="col">Đoạn âm</th>
-
-                </tr>
-              </thead>
-              <tbody>
-              {% for line in lyrics %}
-              <tr class="row_table">
-              <td  contenteditable='false'>{{line.split(']')[0].replace('[', '')}}</td>
-              <td contenteditable='true'>{{line.split(']')[1]}}</td>
-              <td contenteditable='false'><button style="width: 80px;" id="button_{{loop.index}}" onclick="playPartSong({{loop.index}});" class="btn btn-info">Phát</button></td>
-              </tr>
-              </tbody>
-              {%endfor%}
-          </table>
-        </div>
-
+        <div class="col-1 sidenav hidden-xs">
+          <ul class="nav nav-pills nav-stacked">
+              <li class="activeStartPause">
+              <span onclick="playSong();" class="activeAction">Phát</span>
+              </li>
+              <hr>
+          </ul>
+      </div>
     </div>
-    <a style="width: 120px;" href="#" type="submit" onclick="edit()" class="btn btn-primary">Lưu lại</a>
+  </div>
+  <div class="container" style="margin-top: 220px;">
+      <div class="row">
+        <table id="mytable" style="background-color: white; width: 98%;" class="table table-bordered">
+            <thead>
+              <tr>
+                <th style="text-align: center; width: 30%;"  scope="col">Thời gian</th>
+                <th style="text-align: center; width: 60%;" scope="col">Câu</th>
+                <th style="text-align: center; width: 10%;" scope="col">Đoạn âm</th>
+
+              </tr>
+            </thead>
+            <tbody>
+            {% for line in lyrics %}
+            <tr class="row_table">
+            <td  contenteditable='false'>{{line.split(']')[0].replace('[', '')}}</td>
+            <td contenteditable='true'>{{line.split(']')[1]}}</td>
+            <td contenteditable='false'><button style="width: 80px;" id="button_{{loop.index}}" onclick="playPartSong({{loop.index}});" class="btn btn-info">Phát</button></td>
+            </tr>
+            </tbody>
+            {%endfor%}
+        </table>
+      </div>
+
+  </div>
+  <a style="width: 120px;" href="#" type="submit" onclick="edit()" class="btn btn-primary">Lưu lại</a>
 
 </div>
 <footer>

@@ -41,8 +41,17 @@
               <a id="saveToFile" href="/edit?file_audio={{file_audio}}&classify=record" style="width: 100px; margin-left: 20px;"
               onclick="return check_valid()" class="btn btn-primary float-right">Sửa</a>
 
-              <a id="saveToFile" onclick="return check_valid()" href="/export-files?classify=record" 
-              class="btn btn-primary float-right">Xuất file text</a>
+              <div class="dropdown float-right">
+                <button style="width: 125px; margin-left: 20px;" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" 
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Tải văn bản
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="dropdown-item" onclick="return check_valid()" href="/export-files?classify=record">Tải file text</a>
+                  <a class="dropdown-item" onclick="return check_valid()" href="/export-doc?classify=record">Tải file doc</a>
+                </div>
+              </div>
+
                 <!-- <textarea id="values" rows="12" class="form-control"></textarea> -->
 
             </div>

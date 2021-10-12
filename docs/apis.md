@@ -18,5 +18,4 @@ Body
 * path_file (string): Đường dẫn tới file 
 * success (string): 
 
-
 ![post main](./upload_file.png)

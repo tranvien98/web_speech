@@ -1,6 +1,10 @@
 from flask import Flask, render_template, request, jsonify, send_file
 import os
 import time
+from docx import Document
+import re
+from docx.shared import Pt
+
 
 from flask.helpers import url_for
 from werkzeug.utils import redirect
@@ -145,7 +149,7 @@ def return_files():
             res.append(line.split(']')[-1])
         path_txt = data['path_file'][:-3] + 'txt'
         with open(path_txt, 'w', encoding='utf-8') as output:
-            output.write(' '.join(res))
+            output.write(', '.join(res))
         return send_file(path_txt, attachment_filename= file_name[:-3] + 'txt', as_attachment=True)
     else:
         res = []
@@ -154,8 +158,49 @@ def return_files():
             res.append(line.split(']')[-1])
         path_txt = data['path_file_record'][:-3] + 'txt'
         with open(path_txt, 'w', encoding='utf-8') as output:
-            output.write(' '.join(res))
+            output.write(', '.join(res))
         return send_file(path_txt, attachment_filename= file_name[:-3] + 'txt', as_attachment=True)
+
+@app.route('/export-doc')
+def return_files_docx():
+    # https://192.168.1.4:8080/export-doc?classify=upload
+    classify = request.args.get('classify')
+    if classify == 'upload':
+        res = []
+        file_name = data['path_file'].split('/')[-1]
+        for line in data['lyrics']:
+            res.append(line.split(']')[-1])
+        path_txt = data['path_file'][:-3] + 'docx'
+        document = Document()
+        # document.add_heading(file_name, 0).add_run()
+        myfile = ', '.join(res)
+        # myfile = re.sub(r'[^\x00-\x7F]+|\x0c',' ', myfile)
+        # print(myfile)
+        run = document.add_paragraph().add_run(myfile)
+        font = run.font
+        font.name = 'Times New Roman'
+        font.size = Pt(14)
+        # document.add_paragraph(myfile)
+        document.save(path_txt)
+        return send_file(path_txt, attachment_filename= file_name[:-3] + 'docx', as_attachment=True)
+    else:
+        res = []
+        file_name = data['path_file_record'].split('/')[-1]
+        for line in data['lyrics_record']:
+            res.append(line.split(']')[-1])
+        path_txt = data['path_file_record'][:-3] + 'docx'
+        document = Document()
+        # document.add_heading(file_name, 0).add_run()
+        myfile = ', '.join(res)
+        # myfile = re.sub(r'[^\x00-\x7F]+|\x0c',' ', myfile)
+        # print(myfile)
+        run = document.add_paragraph().add_run(myfile)
+        font = run.font
+        font.name = 'Times New Roman'
+        font.size = Pt(14)
+        # document.add_paragraph(myfile)
+        document.save(path_txt)
+        return send_file(path_txt, attachment_filename= file_name[:-3] + 'docx', as_attachment=True)
 
 
 if __name__ == '__main__':

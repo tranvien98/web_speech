@@ -262,3 +262,11 @@ audio::-webkit-media-controls-volume-slider {
 .fixed-size-img {
   width: 100%;
 }
+
+.dropdown-menu a:hover {
+  background-color: rgb(143, 182, 255);
+}
+
+.dropdown-menu {
+  background-color:#d0e6ef;
+}
