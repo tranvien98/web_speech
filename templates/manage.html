@@ -33,9 +33,9 @@
               <td><a class="link_manage" href="/get_audio?file_id={{file_audio.id}}">{{file_audio.filename}}</a></td>
               <td>{{file_audio.create_at}}</td>
               <td>
-                <button type="button" data-target="#exampleModal" class="btn btn-primary" style="color: white; width: 80px;" data-toggle="modal" data-id="{{file_audio.id}}" >
+                <a type="button" href="#exampleModal" class="btn btn-primary" style="color: white; width: 80px;" data-toggle="modal" data-id="{{file_audio.id}}" >
                 Sửa
-                </button>
+                </a>
             </td>
               <td><a class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn xóa file này?');" href="/delete_file?file_id={{file_audio.id}}">Xóa</a></td>
             </tr>
