@@ -270,3 +270,8 @@ audio::-webkit-media-controls-volume-slider {
 .dropdown-menu {
   background-color:#d0e6ef;
 }
+
+.link_manage:hover {
+  text-decoration: none;
+  color: red;
+}

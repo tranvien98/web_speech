@@ -1,0 +1,93 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="wrapper">
+    <h2 class="text-center" style="margin-top: 20px;">PHẦN MỀM NHẬN DẠNG TIẾNG NÓI</h2>
+    <div class="container" style="margin-top: 10px;">
+        <div id="menu">
+            <ul>
+            <li><a href="/">Tải từ máy tính</a></li>
+            <li><a href="/tab">Ghi Âm</a></li>
+            <li><a href="/manage">Quản lý</a></li>
+            </ul>
+          </div>
+    </div>
+    <div class="row text-center" style="background-color: aliceblue; margin-top: 30px;">
+        {% if file_audios|length > 0 %}
+         <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Tên file</th>
+              <th>Ngày tạo</th>
+              <th>Sửa</th>
+              <th>Xóa</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for file_audio in file_audios%}
+            <tr>
+              <td>{{loop.index}}</td>
+              <td><a class="link_manage" href="/get_audio?file_id={{file_audio.id}}">{{file_audio.filename}}</a></td>
+              <td>{{file_audio.create_at}}</td>
+              <td>
+                <button type="button" data-target="#exampleModal" class="btn btn-primary" style="color: white; width: 80px;" data-toggle="modal" data-id="{{file_audio.id}}" >
+                Sửa
+                </button>
+            </td>
+              <td><a class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn xóa file này?');" href="/delete_file?file_id={{file_audio.id}}">Xóa</a></td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+        {%else%}
+        <div class="text-center" style="height: 200px; width: 100%; background-color: #d0e6ef;">
+            <h3> Không có file nào được tải lên</h3>   
+        </div>
+        {%endif%}
+      </div>
+      
+</div>
+<!-- Modal -->
+<form  method="post" action="/rename_file">
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Đổi tên file</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        
+            <div class="modal-body">
+                <input style="width: 100%;" type="hidden" name="file_id" id="file_id" value="">
+                <input style="width: 100%;" required name="file_name" type="text">
+            </div>
+            <div class="modal-footer">
+                <button type="button"  style="width: 80px; text-align: center;" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <input type="submit" style="width: 120px;"  class="btn btn-primary" value="Thay đổi"}>
+            </div>
+      </div>
+    </div>
+  </div>
+</form> 
+<footer>
+</footer>
+<script>
+$(document).ready(function() {
+
+$('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
+
+  var data_id = '';
+  if (typeof $(this).data('id') !== 'undefined') {
+    data_id = $(this).data('id');
+  }
+  $(".modal-body #file_id").val(data_id);
+  console.log(data_id);
+})
+});
+</script>
+{% endblock %}

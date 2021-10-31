@@ -9,6 +9,14 @@ yêu cầu python >= 3.6
 pip install -r requirements.txt
 `
 
+Cài đặt sqlite3
+
+`
+sudo apt-get install sqlite3
+`
+
+Dòng 36 hàm get_audio sử dụng api để dự đoán lời
+
 Dòng 47 file run_server sử dụng api để dự đoán lời
 
 Lời của file được dự đoán được trả về theo dạng danh sách

@@ -10,6 +10,7 @@
             <ul>
             <li><a href="/">Tải từ máy tính</a></li>
             <li><a href="/tab">Ghi Âm</a></li>
+            <li><a href="/manage">Quản lý</a></li>
             </ul>
           </div>
     </div>
@@ -45,7 +46,10 @@
                 </ul>
             </div>
             <div class="col-5 text-center">
-                <audio id="audioSong" controls>
+              {%if file_audio != ""%}
+                <span class="text-center" style="position: absolute; left: 28%; font-size: 13px; z-index: 999;">{{file_audio.split("/")[-1]}}</span>
+              {%endif%}
+                <audio id="audioSong" controls title="audio">
                     <source src="{{file_audio}}" id="srcSong" />
                   </audio>
             </div>
@@ -55,7 +59,6 @@
     <div class="container-fluid">
         <div class="row content">
             <div class="col-12">
-
               <a id="saveToFile" href="/edit?file_audio={{file_audio}}&classify=upload"  style="width: 100px; margin-left: 20px;" 
               onclick="return check_valid()" class="btn btn-primary float-right">Sửa</a>
 

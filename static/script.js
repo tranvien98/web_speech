@@ -116,8 +116,9 @@ function createDownloadLink(blob) {
 
 
     //name of .wav file to use during upload and download (without extendion)
-    var filename = new Date().toISOString();
-    filename = filename+'.wav';
+    var datetime = new Date;
+    var filename = Math.floor(Date.now()).toString();
+    filename = 'record-'+filename+'.wav';
     //add controls to the <audio> element
     au.controls = true;
     au.src = url;
