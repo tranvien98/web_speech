@@ -10,48 +10,76 @@
             <ul>
             <li><a href="/">Tải từ máy tính</a></li>
             <li><a href="/tab">Ghi Âm</a></li>
-            <li><a href="/manage">Quản lý</a></li>
+            <li><a href="/manage/1">Quản lý</a></li>
             </ul>
           </div>
     </div>
     <div class="row text-center" style="background-color: aliceblue; margin-top: 30px;">
-        {% if file_audios|length > 0 %}
+        {% if file_audios.items|length > 0 %}
          <table class="table table-hover">
           <thead>
             <tr>
               <th>STT</th>
               <th>Tên file</th>
               <th>Ngày tạo</th>
-              <th>Sửa</th>
-              <th>Xóa</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            {%for file_audio in file_audios%}
+            {%for file_audio in file_audios.items%}
             <tr>
               <td>{{loop.index}}</td>
-              <td><a class="link_manage" href="/get_audio?file_id={{file_audio.id}}">{{file_audio.filename}}</a></td>
+              <td><a class="link_manage" href="/?id_audio={{file_audio.id_audio}}">{{file_audio.filename}}</a></td>
               <td>{{file_audio.create_at}}</td>
               <td>
-                <a type="button" href="#exampleModal" class="btn btn-primary" style="color: white; width: 80px;" data-toggle="modal" data-id="{{file_audio.id}}" >
-                Sửa
+                <a type="button" href="#exampleModal" class="btn btn-primary" style="color: white; width: 80px;" data-toggle="modal" data-id="{{file_audio.id_audio}}" >
+                Đổi tên
                 </a>
-            </td>
-              <td><a class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn xóa file này?');" href="/delete_file?file_id={{file_audio.id}}">Xóa</a></td>
+                <a type="button" href="/edit?id_audio={{file_audio.id_audio}}" class="btn btn-info" style="color: white; width: 80px;"  >
+                  Sửa
+                  </a>
+                <div class="dropdown-manage ">
+                  <button class="dropbtn-manage btn btn-success">Tải xuống</button>
+                  <div class="dropdown-content-manage">
+                    <a  href="/export-audio/{{file_audio.id_audio}}">Tải file audio</a>
+                    <a  href="/export-files/{{file_audio.id_audio}}">Tải file text</a>
+                    <a  href="/export-doc/{{file_audio.id_audio}}">Tải file doc</a>
+                  </div>
+                </div>
+                <!-- -->
+              <a class="btn btn-danger" onclick="return confirm('Bạn có muốn xóa file này ?');" href="/delete_file?id_audio={{file_audio.id_audio}}&page={{file_audios.page}}">Xóa</a></td>
             </tr>
             {%endfor%}
           </tbody>
         </table>
         {%else%}
-        <div class="text-center" style="height: 200px; width: 100%; background-color: #d0e6ef;">
+        <div class="text-center" style="height: 200px; width: 100%; background-color: #d0e6ef; padding-top: 100px">
             <h3> Không có file nào được tải lên</h3>   
         </div>
         {%endif%}
-      </div>
-      
 </div>
+  <div class="pagination float-right">
+    {% if file_audios.has_prev %}
+    <a href="{{ url_for('view_manage.manage', page=file_audios.prev_num) }}">&laquo;</a>
+    {% endif %}
+    {% for page_num in file_audios.iter_pages() %}
+    {% if page_num %}
+        {% if page_num != file_audios.page %}
+          <a href="{{ url_for('view_manage.manage', page=page_num) }}">{{ page_num }}</a>
+        {% else %}
+          <a  class="active" href="#">{{ page_num }}</a>
+        {% endif %}
+    {% else %}
+        <span class="ellipsis" style="white-space; nowrap; overflow: hidden; text-overflow: ellipsis">…</span>
+    {% endif %}
+    {% endfor %}
+    {% if file_audios.has_next %}
+    <a href="{{ url_for('view_manage.manage', page=file_audios.next_num) }}">&raquo;</a>
+    {% endif %}
+  </div>
+
 <!-- Modal -->
-<form  method="post" action="/rename_file">
+<form  method="post" action="/rename_file?page={{file_audios.page}}">
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -63,7 +91,7 @@
         </div>
         
             <div class="modal-body">
-                <input style="width: 100%;" type="hidden" name="file_id" id="file_id" value="">
+                <input style="width: 100%;" type="hidden" name="id_audio" id="id_audio" value="">
                 <input style="width: 100%;" required name="file_name" type="text">
             </div>
             <div class="modal-footer">
@@ -77,6 +105,7 @@
 <footer>
 </footer>
 <script>
+
 $(document).ready(function() {
 
 $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
@@ -85,9 +114,10 @@ $('a[data-toggle=modal], button[data-toggle=modal]').click(function () {
   if (typeof $(this).data('id') !== 'undefined') {
     data_id = $(this).data('id');
   }
-  $(".modal-body #file_id").val(data_id);
+  $(".modal-body #id_audio").val(data_id);
   console.log(data_id);
 })
 });
+
 </script>
 {% endblock %}

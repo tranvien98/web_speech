@@ -10,7 +10,7 @@
             <ul>
             <li><a href="/">Tải từ máy tính</a></li>
             <li><a href="/tab">Ghi Âm</a></li>
-            <li><a href="/manage">Quản lý</a></li>
+            <li><a href="/manage/1">Quản lý</a></li>
             </ul>
           </div>
     </div>
@@ -18,7 +18,7 @@
     <div style="margin-top: 0px;" class="container">
         <div class="row">
             <div class="col-6">
-                <form name="inputFileMedia" action="/detect_upload" method="POST" enctype="multipart/form-data">
+                <!-- <form name="inputFileMedia" action="#" method="POST" enctype="multipart/form-data"> -->
                     <div class="file-upload">
                         <div class="file-select">
                           <div class="file-select-button" id="fileName">Chọn File</div>
@@ -33,8 +33,8 @@
                           <!-- <input type="file" class="form-control " rows="5" name="songImport" required id="fileSong" accept="audio/*"> -->
                         </div>
                       </div>
-                      <button class="btn btn-primary" onclick="notifile()" id="submit" style="width: 150px;" type="submit">Nhận dạng</button>
-                </form>
+                      <button class="btn btn-primary" onclick="notifile()" id="but_upload" style="width: 150px;" type="submit">Nhận dạng</button>
+                <!-- </form> -->
                 
             </div>
             <div class="col-1 sidenav hidden-xs">
@@ -59,7 +59,7 @@
     <div class="container-fluid">
         <div class="row content">
             <div class="col-12">
-              <a id="saveToFile" href="/edit?file_audio={{file_audio}}&classify=upload"  style="width: 100px; margin-left: 20px;" 
+              <a id="saveToFile" href="/edit?id_audio={{id_audio}}"  style="width: 100px; margin-left: 20px;" 
               onclick="return check_valid()" class="btn btn-primary float-right">Sửa</a>
 
               <div class="dropdown float-right">
@@ -68,8 +68,8 @@
                   Tải văn bản
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" onclick="return check_valid()" href="/export-files?classify=upload">Tải file text</a>
-                  <a class="dropdown-item" onclick="return check_valid()" href="/export-doc?classify=upload">Tải file doc</a>
+                  <a class="dropdown-item" onclick="return check_valid()" href="/export-files/{{id_audio}}">Tải file text</a>
+                  <a class="dropdown-item" onclick="return check_valid()" href="/export-doc/{{id_audio}}">Tải file doc</a>
                 </div>
               </div>
                 <!-- <textarea id="values" rows="12" class="form-control"></textarea> -->
@@ -119,6 +119,34 @@ var Toast = Swal.mixin({
   timer: 5000
 });
 
+$(document).ready(function(){
+  $("#but_upload").click(function(){
+      var fd = new FormData();
+      var files = $('#fileSong')[0].files;
+      
+      // Check file selected or not
+      if(files.length > 0 ){
+        fd.append('songImport',files[0]);
+
+        $.ajax({
+            url: '/api/detect_upload',
+            type: 'post',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function(response){
+              window.location.href = "/?" + "id_audio=" + response["id_audio"]
+            },
+            error: function (response) {
+                Toast.fire({
+                    icon: 'error',
+                    title: response.responseText
+                })
+            }
+        });
+      }
+  });
+});
 
 function notifile(){
   var valSong = document.getElementById('fileSong').value;
@@ -139,6 +167,7 @@ function notifile(){
 }
 
 var textFromFileLoaded = {{lyrics|safe}};
+var spellMistake =  {{spell_mistake|safe}} ;
 loadFileAsText()
 // console.log(textFromFileLoaded);
 function check_valid() {
@@ -194,6 +223,7 @@ function loadFileAsText(){
   var addStyleLyric = new Array();
   var linesongid = 1;
   // console.log(showLyricHtml);
+  showLyricHtml = addHighlight(showLyricHtml, spellMistake);
   showLyricHtml.forEach(result => {
     result = "<span class='lineRunLyric' id='linesongid"+ linesongid +"'>" +result[2] + "</span>";
     linesongid++;
@@ -203,6 +233,18 @@ function loadFileAsText(){
   addStyleLyric = addStyleLyric.replaceAll("</span><br />,<span", "</span><br /><span");
   document.getElementById("inputTextToSave").innerHTML = addStyleLyric;
   runLyric(textFromFileLoaded);
+}
+
+function addHighlight(text, spellMistake){
+  spellMistake.forEach(result => {
+    // console.log(result);
+    reText = text[result['sentence']][2];
+    text[result['sentence']][2] = reText.substring(0, result['start_index']) + "<span class='highlight'>" + 
+    reText.substring(result['start_index'],result['end_index']) + "</span>" + reText.substring(result['end_index'], reText.length);
+    // console.log(text[result['sentence']][2]);
+  }
+  )
+  return text;
 }
 
 function runLyric(str) {
@@ -236,8 +278,6 @@ function runLyric(str) {
 
   fileSong.addEventListener("change", function(){
     myAudio.currentTime = 0;
-    var getCurrentTime = formatCurrentTime(myAudio.currentTime);
-    var getDuration = formatCurrentTime(myAudio.duration);
     var showCurTimeSong = document.querySelectorAll(".showCurrentTimeSong");
     clearInterval(intervalObj);
     textFromFileLoaded = "";

@@ -23,7 +23,7 @@ h1 {
 }
 
 
-button {
+.button-custom {
     padding: 0;
     border: 0;
     background: transparent;
@@ -33,6 +33,7 @@ button {
     height: 40px;
     float: left;
 }
+
 
 #mytable {
   background-color: white;
@@ -264,14 +265,105 @@ audio::-webkit-media-controls-volume-slider {
 }
 
 .dropdown-menu a:hover {
-  background-color: rgb(143, 182, 255);
+  background-color: rgb(165, 165, 165);
 }
 
 .dropdown-menu {
-  background-color:#d0e6ef;
+  background-color: white;
+  min-width: 5px;
 }
 
 .link_manage:hover {
   text-decoration: none;
   color: red;
+}
+
+.pagination {
+  display: inline-block;
+}
+
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.pagination a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}
+
+
+
+.highlight {background-color: orange;}
+
+
+
+.dropbtn-manage {
+  /* background-color: #4CAF50; */
+  cursor: pointer;
+}
+
+.dropdown-manage {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content-manage {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 140px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 2;
+}
+
+.dropdown-content-manage a {
+  color: black;
+  padding: 12px 14px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content-manage a:hover {background-color: #979797}
+
+.dropdown-manage:hover .dropdown-content-manage {
+  display: block;
+}
+
+
+
+.dropbtn-suggest {
+  background-color: orange;
+  cursor: pointer;
+}
+
+.dropdown-suggest {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content-suggest {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 100px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 2;
+}
+
+.dropdown-content-suggest a {
+  color: black;
+  padding: 5px 12px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content-suggest a:hover {background-color: #626060}
+
+.dropdown-suggest:hover .dropdown-content-suggest {
+  display: block;
 }

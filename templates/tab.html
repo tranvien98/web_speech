@@ -7,7 +7,7 @@
             <ul>
             <li><a href="/">Tải từ máy tính</a></li>
             <li><a href="/tab">Ghi Âm</a></li>
-            <li><a href="/manage">Quản lý</a></li>
+            <li><a href="/manage/1">Quản lý</a></li>
             </ul>
           </div>
         <div style="margin-top: 10px;"  class="row">
@@ -42,7 +42,7 @@
         <div class="row content">
             <div class="col-12">
 
-              <a id="saveToFile" href="/edit?file_audio={{file_audio}}&classify=record" style="width: 100px; margin-left: 20px;"
+              <a id="saveToFile" href="/edit?id_audio={{id_audio}}" style="width: 100px; margin-left: 20px;"
               onclick="return check_valid()" class="btn btn-primary float-right">Sửa</a>
 
               <div class="dropdown float-right">
@@ -51,8 +51,8 @@
                   Tải văn bản
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" onclick="return check_valid()" href="/export-files?classify=record">Tải file text</a>
-                  <a class="dropdown-item" onclick="return check_valid()" href="/export-doc?classify=record">Tải file doc</a>
+                  <a class="dropdown-item" onclick="return check_valid()" href="/export-files/{{id_audio}}">Tải file text</a>
+                  <a class="dropdown-item" onclick="return check_valid()" href="/export-doc/{{id_audio}}">Tải file doc</a>
                 </div>
               </div>
 
@@ -99,6 +99,7 @@ var Toast = Swal.mixin({
   timer: 5000
 });
 var textFromFileLoaded = {{lyrics|safe}};
+var spellMistake =  {{spell_mistake|safe}} ;
 loadFileAsText()
 function playSong() {
 //   var valSong = document.getElementById('fileSong').value;
@@ -161,6 +162,7 @@ function loadFileAsText(){
   var addStyleLyric = new Array();
   var linesongid = 1;
   // console.log(showLyricHtml);
+  showLyricHtml = addHighlight(showLyricHtml, spellMistake);
   showLyricHtml.forEach(result => {
     result = "<span class='lineRunLyric' id='linesongid"+ linesongid +"'>" +result[2] + "</span>";
     linesongid++;
@@ -171,6 +173,19 @@ function loadFileAsText(){
   document.getElementById("inputTextToSave").innerHTML = addStyleLyric;
   runLyric(textFromFileLoaded);
 }
+
+function addHighlight(text, spellMistake){
+  spellMistake.forEach(result => {
+    // console.log(result);
+    reText = text[result['sentence']][2];
+    text[result['sentence']][2] = reText.substring(0, result['start_index']) + "<span class='highlight'>" + 
+      reText.substring(result['start_index'],result['end_index']) + "</span>" + reText.substring(result['end_index'], reText.length);
+    // console.log(text[result['sentence']][2]);
+  }
+  )
+  return text;
+}
+
 
 function runLyric(str) {
   // clearInterval(intervalObj);

@@ -130,15 +130,16 @@ function createDownloadLink(blob) {
     upload.addEventListener("click", function(event){
         var xhr=new XMLHttpRequest();
         xhr.onload=function(e) {
-            if(this.readyState === 4) {
-                window.location.href = "/detect_record"
-                console.log("Server returned: ",e.target.responseText);
+            if(this.readyState === 4 && this.status == 200) {
+                var jsonResponse = JSON.parse(this.response);
+                // console.log(jsonResponse["id_audio"]);
+                window.location.href = "/tab?" + "id_audio=" + jsonResponse["id_audio"]
             }
         };
         console.log(url);
         var fd=new FormData();
-        fd.append("audio_data",blob, filename);
-        xhr.open("POST","/upload_record",true);
+        fd.append("songImport",blob, filename);
+        xhr.open("POST","/api/detect_upload",true);
         xhr.send(fd);
         
     })

@@ -1,6 +1,6 @@
-## Dự đoán văn bản
+### Dự đoán văn bản
 
-### Cài đặt
+#### Cài đặt
 
 yêu cầu python >= 3.6
 
@@ -8,16 +8,11 @@ yêu cầu python >= 3.6
 `
 pip install -r requirements.txt
 `
+#### Config
 
-Cài đặt sqlite3
+Chỉnh config trong file config.py
 
-`
-sudo apt-get install sqlite3
-`
-
-Dòng 36 hàm get_audio sử dụng api để dự đoán lời
-
-Dòng 47 file run_server sử dụng api để dự đoán lời
+Dòng 30 hàm detect_upload trong file controller/api.py
 
 Lời của file được dự đoán được trả về theo dạng danh sách
 
@@ -35,7 +30,7 @@ thời gian dạng giây. mili giây
 
 các phần tử trong danh sách có dạng `[thòi gian] + Lời` thời gian được format theo dạng giờ:phút:giây
 
-### Chạy mô hình 
+#### Chạy mô hình 
 
 `python3 run_servepy`
 

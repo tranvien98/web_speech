@@ -1,18 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="wrapper">
-  <div class="container" style="background-color: #d0e6ef;position: fixed; top: 0;">
+  <div class="container" style="background-color: #d0e6ef;position: fixed; top: 0; z-index: 1;">
     <h2 class="text-center" style="margin-top: 30px;">PHẦN MỀM NHẬN DẠNG TIẾNG NÓI</h2>
     <div >
         <div class="row" id="menu">
             <ul>
             <li><a href="/">Tải từ máy tính</a></li>
             <li><a href="/tab">Ghi Âm</a></li>
+            <li><a href="/manage/1">Quản lý</a></li>
             </ul>
           </div>
     </div>
     <div class="row"  >
-      <div style="background-color: white; height: 45px; text-align: center; padding-top: 0px;"
+      <div style="background-color: white; text-align: center; padding-top: 0px;"
        class="col-2 float-right ">
         <span id="tracktime"> 00.00 / 00.00</span><br>
         <span style="font-size: 13px;">{{file_audio.split("/")[-1]}}</span>
@@ -35,24 +36,14 @@
   </div>
   <div class="container" style="margin-top: 220px;">
       <div class="row">
-        <table id="mytable" style="background-color: white; width: 98%;" class="table table-bordered">
-            <thead>
-              <tr>
-                <th style="text-align: center; width: 30%;"  scope="col">Thời gian</th>
-                <th style="text-align: center; width: 60%;" scope="col">Câu</th>
-                <th style="text-align: center; width: 10%;" scope="col">Đoạn âm</th>
-
-              </tr>
-            </thead>
-            <tbody>
-            {% for line in lyrics %}
-            <tr class="row_table">
-            <td  contenteditable='false'>{{line.split(']')[0].replace('[', '')}}</td>
-            <td contenteditable='true'>{{line.split(']')[1]}}</td>
-            <td contenteditable='false'><button style="width: 80px;" id="button_{{loop.index}}" onclick="playPartSong({{loop.index}});" class="btn btn-info">Phát</button></td>
+        <table id="myDynamicTable" style="background-color: white; width: 98%;" class="table table-bordered">
+          <thead>
+            <tr>
+              <th style="text-align: center; width: 30%;"  scope="col">Thời gian</th>
+              <th style="text-align: center; width: 60%;" scope="col">Câu</th>
+              <th style="text-align: center; width: 10%;" scope="col">Đoạn âm</th>
             </tr>
-            </tbody>
-            {%endfor%}
+          </thead>
         </table>
       </div>
 
@@ -63,8 +54,99 @@
 <footer>
 </footer>
 <script>
+
+var Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 5000
+});
 function set_time(index) {
   console.log(index);
+}
+var textFromFileLoaded = {{lyrics|safe}};
+var spellMistake =  {{spell_mistake|safe}} ;
+
+function addTable(textFromFileLoaded, spellMistake) {
+  var table = document.getElementById("myDynamicTable");
+  var tableBody = document.createElement('TBODY');
+  table.appendChild(tableBody);
+  var showLyricHtml = parseShowLyrics(textFromFileLoaded);
+  var addStyleLyric = new Array();
+  var linesongid = 1;
+  // console.log(showLyricHtml);
+  loop = 1;
+  showLyricHtml = addHighlight(showLyricHtml, spellMistake);
+  // console.log(showLyricHtml);
+  showLyricHtml.forEach(result =>{
+    var tr = document.createElement('TR');
+    tr.classList.add('row_table');
+    tableBody.appendChild(tr);
+    var td = document.createElement('TD');
+    td.appendChild(document.createTextNode(result[0] + "," + result[1]));
+    tr.appendChild(td);
+    var td = document.createElement('TD');
+    td.setAttribute("contenteditable", "True");
+    td.innerHTML = result[2];
+    tr.appendChild(td);
+    var td = document.createElement('TD');
+    td.innerHTML = "<button style='width: 80px;'' id='button_"+ loop + "'onclick='playPartSong("+ loop +");'' class='btn btn-info'>Phát</button>";
+    tr.appendChild(td);
+    loop++;
+  }
+  )
+
+}
+addTable(textFromFileLoaded, spellMistake);
+
+function addHighlight(text, spellMistake){
+  var loop = 1;
+  spellMistake.forEach(result => {
+    // console.log(result);
+    textSuggest = ''
+    result['suggestion'].forEach( textsug => {
+      rows = "<a onclick='changeText(this, "+loop+")'>" + textsug + "</a>";
+      textSuggest += rows
+    })
+    reText = text[result['sentence']][2];
+    text[result['sentence']][2] = reText.substring(0, result['start_index']) + "<div class='dropdown-suggest'><span class='dropbtn-suggest' id='text_"+loop+"'>" + 
+      reText.substring(result['start_index'],result['end_index']) + "</span>"+" <span id='myDropdown_"+loop+"' class='dropdown-content-suggest'>"+textSuggest+"</span></div>" + reText.substring(result['end_index'], reText.length) ;
+    // console.log(text[result['sentence']][2]);
+    loop++;
+  }
+  )
+  return text;
+}
+
+function changeText(re, loop){
+
+  var idx = "text_" + loop;
+  var textNode = document.getElementById(idx);
+  textNode.style.backgroundColor = "white";
+  textNode.innerText = re.innerText;
+  console.log(textNode.style.backgroundColor);
+  
+}
+
+/* When the user clicks on the button, 
+toggle between hiding and showing the dropdown content */
+function myFunction(loop) {
+  idx = "myDropdown_" + loop;
+  document.getElementById(idx).classList.toggle("show");
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-suggest-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
 }
 
 function formatCurrentTime(time) {
@@ -89,45 +171,52 @@ function formatCurrentTime(time) {
 
 
 function edit() {
-    var table = document.getElementById('mytable');
+    var table = document.getElementById('myDynamicTable');
     var newArr = new Array();
     for (var r = 1, n = table.rows.length; r < n; r++) {
-      var text1 = table.rows[r].cells[0].innerHTML.trim()
-      var text2 = table.rows[r].cells[1].innerHTML.trim()
+      var text1 = table.rows[r].cells[0].innerText.trim()
+      var text2 = table.rows[r].cells[1].innerText.trim()
       text2 = text2.replaceAll("&nbsp;", "").replaceAll("<br>", "").trim();
       // console.log(text2);
       newArr.push('['+text1+']'+ text2 );
 
     };
-    // console.log(newArr);
     var sendInfo = {
-        lyrics: newArr
+      lyrics: newArr,
+      id_audio: "{{id_audio}}"
+  
     };
-    var classify = "{{classify}}";
     $.ajax({
-            url: '/edit_lyrics?classify=' + classify,
-            type: 'post',
+            url: '/api/detect_update',
+            type: 'put',
             dataType: 'json',
             contentType: 'application/json',
             success: function (response) {
-                console.log(response);
-                window.location.href = "/save_edit?classify="+classify
+                textFromFileLoaded = response['lyrics'];
+                spellMistake = response['spell_mistake'];
+                var el = document.getElementsByTagName("tbody")[0];
+                el.remove();
+                addTable(textFromFileLoaded, spellMistake);
+                Toast.fire({
+                title: "Đã lưu lại thay đổi",
+                icon: 'info',
+                  })
             },
             error: function (response) {
-                console.log(response);
-                //save_edit?classify={{classify}}
+              Toast.fire({
+              title: response.responseJSON['error'],
+              icon: 'error',
+                })
             },
             data: JSON.stringify(sendInfo)
         });
 }
-</script>
-<script>
 
 function playPartSong(index) {
   var actStartPause = document.querySelectorAll(".activeStartPause");
   audio = document.getElementById('audioSong');
   var row_table = document.getElementsByClassName("row_table");
-  var table = document.getElementById('mytable');
+  var table = document.getElementById('myDynamicTable');
   var row_table = document.getElementsByClassName("row_table")
   for (let i = 0; i < row_table.length; i++) {
     row_table[i].style.color = "black";
@@ -141,7 +230,7 @@ function playPartSong(index) {
       start = table.rows[r].cells[0].innerHTML.trim().split(',')[0];
       end = table.rows[r].cells[0].innerHTML.trim().split(',')[1];
       audio.currentTime= parseFloat(start);
-      console.log(start);
+      // console.log(start);
       audio.play();
     }
   }
@@ -218,5 +307,37 @@ function runLyric(start, end) {
   }, 5)
 }
 
+function parseLyrics(lyricImport) {
+  // var parseLyrics = simpleFormat(lyricImport)
+  // parseLyrics = parseLyrics.replaceAll("<p>", "");
+  // parseLyrics = parseLyrics.replaceAll("</p>", "");
+  var sPlit = lyricImport
+  var newArr = new Array();
+  sPlit.forEach(element => {
+    var array_lyrics = element.split(']')
+    var array_time = array_lyrics[0].split(',')
+    var start_time = array_time[0].replace('[', '')
+    var end_time = array_time[1].replace(']', '')
+    var lyric = array_lyrics[1]
+    var setSplit = ",,,.,,,"
+    element = start_time + setSplit + end_time + setSplit + lyric;
+
+    var createArr = element.split(setSplit);
+    newArr.push(createArr);
+  });
+  
+  var newArr1 = new Array();
+  newArr.forEach(result => {
+    if (result[2] !== "") {
+      newArr1.push(result)
+    }
+  });
+  return newArr1;
+}
+
+function parseShowLyrics(lyricImport) {
+  var showLyricHtml = parseLyrics(lyricImport);
+  return showLyricHtml;
+}
 </script>
 {% endblock %}

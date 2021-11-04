@@ -1,9 +1,12 @@
-from flask_sqlalchemy import SQLAlchemy
+from flask_mongoengine import MongoEngine
 
 
-db = SQLAlchemy()
-class FileAudio(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(80), nullable=False)
-    create_at = db.Column(db.String(120), nullable=False)
-    path_file = db.Column(db.String(120), nullable=False)
+db = MongoEngine()
+class FileAudio(db.Document):
+    id_audio = db.StringField(required=True, unique=True)
+    filename = db.StringField(required=True)
+    create_at = db.StringField(required=True)
+    timestamp = db.StringField(required=True)
+    path_file = db.StringField(required=True)
+    lyrics = db.ListField()
+    spell_mistake = db.ListField()
