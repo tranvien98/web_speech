@@ -8,7 +8,9 @@ from view.view_upload import view_upload
 from view.view_edit import view_edit
 from view.view_manage import view_manage
 from view.view_record import view_record
-
+import threading
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from asr_server import start
 
 app = Flask(__name__)
 app.register_blueprint(api)
@@ -43,7 +45,24 @@ def tabpage():
         audio = FileAudio.objects.get(id_audio=id_audio)
         return render_template('tab.html', file_audio = audio.path_file, lyrics = audio.lyrics\
             ,spell_mistake=audio.spell_mistake,  id_audio=audio.id_audio)
+
+
+@app.route('/tab_rt', methods=['GET', "POST"])
+def tab_rt_page():
+    id_audio = request.args.get('id_audio')
+    # start()
+    # t1 = threading.Thread(name="loop", target=start).start()
+    # t1.daemon = True
+    # t1.start()
+    # if id_audio == None:
+    return render_template('tab_rt.html', file_audio="", lyrics=[], spell_mistake=[])
+    # else:
+    #     audio = FileAudio.objects.get(id_audio=id_audio)
+    #     return render_template('index.html', file_audio = audio.path_file, lyrics = audio.lyrics\
+    #         ,spell_mistake=audio.spell_mistake,  id_audio=audio.id_audio)
  
+
+
 @app.route('/edit', methods=['GET'])
 def editpage():
     id_audio = request.args.get('id_audio')
@@ -83,8 +102,12 @@ def return_files_docx(id_audio):
     myfile = ', '.join(res)
     # myfile = re.sub(r'[^\x00-\x7F]+|\x0c',' ', myfile)
     # print(myfile)
-    run = document.add_paragraph().add_run(myfile)
+    run = document.add_paragraph()
+    run.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
+    run=run.add_run(myfile)
     font = run.font
+#    font.alignment = WD_ALIGN_PARAGRAPH.CENTER
     font.name = 'Times New Roman'
     font.size = Pt(14)
     # document.add_paragraph(myfile)
@@ -95,7 +118,7 @@ def return_files_docx(id_audio):
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
-    parser.add_argument('-p', '--port', default=8080,
+    parser.add_argument('-p', '--port', default=5001,
                         type=int, help='port to listen on')
     parser.add_argument('--host', default='0.0.0.0',
                         type=str, help='port to listen on')
@@ -103,3 +126,5 @@ if __name__ == '__main__':
     host = args.host
     port = args.port
     app.run(host=host, port=port, debug=True, threaded=True ,ssl_context=('cert.pem', 'key.pem'))
+#    start()
+
