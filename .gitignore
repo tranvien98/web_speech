@@ -1,3 +1,4 @@
 env
 static/files/
 .venv
+static/record_file/
