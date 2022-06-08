@@ -9,6 +9,9 @@ import websockets
 import concurrent.futures
 import logging
 from vosk import Model, KaldiRecognizer
+import time
+import wave
+
 
 def process_chunk(rec, message):
     if message == '{"eof" : 1}':
@@ -34,10 +37,24 @@ async def recognize(websocket, path):
     logging.info('Connection from %s', websocket.remote_address);
     tm=0
     check_sen=''
+
+
+    #audio details
+    foldir = "./static/record_file"
+    if not os.path.exists(foldir):
+        os.makedirs(foldir)
+    name_file='./static/record_file/'+str(int(time.time()))+'.wav'
+    dump_fn = wave.open(name_file, "wb")
+    dump_fn.setnchannels(1)
+    dump_fn.setsampwidth(2)
+    dump_fn.setframerate(16000)
+    # try:
     while True:
         tm=tm+1
         a=b'RIFF\xb2\x0e\x04\x00WAVEfmt '
         message = await websocket.recv()
+        # print(message)
+        
         # if tm<3:print(a+message)
         # Load configuration if provided
         if isinstance(message, str) and 'config' in message:
@@ -60,23 +77,35 @@ async def recognize(websocket, path):
         # Create the recognizer, word list is temporary disabled since not every model supports it
         if not rec:
             if phrase_list:
-                 rec = KaldiRecognizer(model, 16000, json.dumps(phrase_list, ensure_ascii=False))
+                rec = KaldiRecognizer(model, 16000, json.dumps(phrase_list, ensure_ascii=False))
             else:
-                 rec = KaldiRecognizer(model, 16000)
-            rec.SetWords(show_words)
+                rec = KaldiRecognizer(model, 16000)
+            rec.SetWords('True')
             rec.SetMaxAlternatives(max_alternatives)
+        rec.SetWords('True')
+        
+        #write file audio
+        dump_fn.writeframes(message)
+
 
         response, stop = await loop.run_in_executor(pool, process_chunk, rec, message)
         # if tm==1 and 'partial'in response and json.loads(response)['partial']!='': json.loads(response)['partial']=check_sen
         # if 'partial'in response and json.loads(response)['partial']==check_sen and json.loads(response)['partial']!='':
         #     json.loads(response)['partial']=check_sen
         # else: 
+        # print(response)
         #if 'partial'in response: 
-        await websocket.send(response)
+        res = json.loads(response)
+        res["name_file"] = name_file
+        # print(res)
+        await websocket.send(json.dumps(res))
 #        if 'partial'in response and json.loads(response)['partial']!='':print(json.loads(response)['partial'])
         # await websocket.send(response)
         if stop: break
-
+    # except Exception as e:
+    #     print(e)
+    #     dump_fn.close()
+    #     print('done to dump')
 
 
 def start():
@@ -123,7 +152,6 @@ def start():
     logging.info("Listening on %s:%d", args.interface, args.port)
     loop.run_until_complete(start_server)
     loop.run_forever()
-
 
 if __name__ == '__main__':
     start()

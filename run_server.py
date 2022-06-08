@@ -111,11 +111,14 @@ def return_files_docx(id_audio):
     font.name = 'Times New Roman'
     font.size = Pt(14)
     # document.add_paragraph(myfile)
+    print(path_txt)
     document.save(path_txt)
+    
     return send_file(path_txt, attachment_filename= file_name[:-3] + 'docx', as_attachment=True)
 
 
 if __name__ == '__main__':
+    # from waitress import serve
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument('-p', '--port', default=5001,
@@ -126,5 +129,6 @@ if __name__ == '__main__':
     host = args.host
     port = args.port
     app.run(host=host, port=port, debug=True, threaded=True ,ssl_context=('cert.pem', 'key.pem'))
+    # serve(app=app, host=host, port=port,ssl_context=('cert.pem', 'key.pem'))
 #    start()
 

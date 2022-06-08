@@ -34,7 +34,7 @@
                           <!-- <input type="file" class="form-control " rows="5" name="songImport" required id="fileSong" accept="audio/*"> -->
                         </div>
                       </div>
-                      <button class="btn btn-primary" onclick="notifile()" id="but_upload" style="width: 150px;" type="submit">Nhận dạng</button>
+                      <button class="btn"   onclick="notifile()" id="but_upload" style="width: 150px; color: white; background-color: red" type="submit">Nhận dạng</button>
                 <!-- </form> -->
                 
             </div>
@@ -61,7 +61,7 @@
         <div class="row content">
             <div class="col-12">
               <a id="saveToFile" href="/edit?id_audio={{id_audio}}"  style="width: 100px; margin-left: 20px;" 
-              onclick="return check_valid()" class="btn btn-primary float-right">Sửa</a>
+              onclick="return check_valid()" class="btn btn-warning float-right">Sửa</a>
 
               <div class="dropdown float-right">
                 <button style="width: 125px; margin-left: 20px;" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" 
@@ -120,6 +120,30 @@ var Toast = Swal.mixin({
   timer: 5000
 });
 
+function profmovepbar() {
+  var elemetdata= document.getElementById("filebar");   
+  var width = 1; //init mode set width
+  var id = setInterval(frame, 1000); //set interval
+  function frame() {
+    if (width >= 99) {
+      clearInterval(id); //clearInterval
+    } else {
+      $.ajax({
+            url: '/api/get_percent',
+            type: 'get',
+            success: function(response){
+              console.log(response["percent"]);
+              width = response["percent"];
+            },
+            error: function (response) {
+                console.log(response.text());
+            }
+        });
+      elemetdata.style.width = width + '%'; //set width
+    }
+  }
+}
+
 $(document).ready(function(){
   $("#but_upload").click(function(){
       var fd = new FormData();
@@ -128,13 +152,27 @@ $(document).ready(function(){
       // Check file selected or not
       if(files.length > 0 ){
         fd.append('songImport',files[0]);
-
         $.ajax({
             url: '/api/detect_upload',
             type: 'post',
             data: fd,
             contentType: false,
             processData: false,
+            beforeSend: function() {
+              Swal.fire({
+                html: "<html> <h5>Đang tiến hành nhận dạng !</h5><div id='fileprogressdata'> <div id='filebar'></div></div></html>",   
+                // toast: true,
+                position: 'top-end',
+                button: false,
+                closeClick: false,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                closeOnClickOutside: false,
+                closeOnEsc: false
+              });
+              profmovepbar();
+              },
             success: function(response){
               window.location.href = "/?" + "id_audio=" + response["id_audio"]
             },
@@ -152,18 +190,21 @@ $(document).ready(function(){
 function notifile(){
   var valSong = document.getElementById('fileSong').value;
   if (valSong == "") {
-    Toast.fire({
-      title: 'Bạn chưa chọn file!',
+    Swal.fire({
+      text: 'Bạn chưa chọn file!',
       icon: 'error',
-
+      toast: true,
+      position: 'top-end',
+      timer: 5000,
+      showConfirmButton: false,
     })
     return
   }
   // else {
-  Toast.fire({
-  title: 'Đang tiến hành nhận dạng!',
-  icon: 'info',
-    })
+  // Toast.fire({
+  // title: 'Đang tiến hành nhận dạng!',
+  // icon: 'info',
+  //   })
   
 }
 
@@ -198,7 +239,7 @@ function playSong() {
   document.getElementById('audioSong').play();
 
   for (let i = 0; i < actStartPause.length; i++) {
-    actStartPause[i].innerHTML = '<span onclick="pauseSong();" class="activeAction">Dừng</span>';
+    actStartPause[i].innerHTML = '<span onclick="pauseSong();" style="background-color: red" class="activeAction">Dừng</span>';
   }
   setTimeout(function(){
   loadFileAsText();
@@ -219,6 +260,12 @@ function pauseSong() {
   }
 }
 
+function jsUcfirst(string) 
+// viet hoa chu dau
+{
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 function loadFileAsText(){
   var showLyricHtml = parseShowLyrics(textFromFileLoaded);
   var addStyleLyric = new Array();
@@ -226,11 +273,15 @@ function loadFileAsText(){
   // console.log(showLyricHtml);
   showLyricHtml = addHighlight(showLyricHtml, spellMistake);
   showLyricHtml.forEach(result => {
-    result = "<span class='lineRunLyric' id='linesongid"+ linesongid +"'>" +result[2] + "</span>";
+    result = "<span class='lineRunLyric' id='linesongid"+ linesongid +"'>" + jsUcfirst(result[2]) + "."+"</span>";
+    // console.log(result);
     linesongid++;
     addStyleLyric.push(result);
+    // console.log(addStyleLyric);
   })
-  addStyleLyric = "<p>" + addStyleLyric + "</p>";
+
+  addStyleLyric = "<p>" + addStyleLyric.join(" ") + "</p>";
+  // console.log(addStyleLyric);
   addStyleLyric = addStyleLyric.replaceAll("</span><br />,<span", "</span><br /><span");
   document.getElementById("inputTextToSave").innerHTML = addStyleLyric;
   runLyric(textFromFileLoaded);

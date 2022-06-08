@@ -9,4 +9,5 @@ class FileAudio(db.Document):
     timestamp = db.StringField(required=True)
     path_file = db.StringField(required=True)
     lyrics = db.ListField()
+    duration = db.StringField()
     spell_mistake = db.ListField()

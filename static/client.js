@@ -135,9 +135,12 @@ function initWebSocket() {
   
       try {
         result = JSON.parse(e.data);
+        // console.log(result)
         if (result['text'] !==undefined && result['text']!==''){
           console.log('========')
-          console.log(result['text'])
+          console.log(result)
+          console.log(result[0]["start"])
+          console.log(result.slice(-1)["start"])
           sentense=sentense+result['text'].toLowerCase().charAt(0).toUpperCase()+result['text'].toLowerCase().slice(1)+'. '
         }
         if (result['partial']!=='' && result['text'] ==undefined) {

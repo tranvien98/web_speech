@@ -1,0 +1,3 @@
+thu gui mess {"eof" : 1} sang socket
+
+chuyen chu thanh so 

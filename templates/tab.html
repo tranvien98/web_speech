@@ -14,8 +14,8 @@
         <div style="margin-top: 10px;"  class="row">
             <div class="col-5">
                 <div id="controls">
-                    <button class="btn btn-primary" style="width: 100px;" id="recordButton">Ghi Âm</button>
-                    <button class="btn btn-primary" style="width: 120px; margin-left: 20px;" id="pauseButton" disabled>Tạm Dừng</button>
+                    <button class="btn" style="width: 100px; color: white; background-color: red" id="recordButton">Ghi Âm</button>
+                    <!-- <button class="btn btn-primary" style="width: 120px; margin-left: 20px;" id="pauseButton" disabled>Tạm Dừng</button> -->
                     <button class="btn btn-primary" style="width: 100px; margin-left: 20px;" id="stopButton" disabled>Dừng</button>
                 </div>
             </div>
@@ -27,24 +27,24 @@
                     <hr>
                 </ul>
             </div>
-            <div class="col-4">
+            <div class="col-6">
               {%if file_audio != ""%}
               <span class="text-center" style="position: absolute; left: 28%; font-size: 12px; z-index: 999;">{{file_audio.split("/")[-1]}}</span>
               {%endif%}
-              <audio id="audio_record" controls>
-                    <source src="{{file_audio}}" type="audio/mpeg">
+              <audio style="width:100%" id="audio_record" preload="metadata" controls>
+                    <source  id="wav_audio_record" src="{{file_audio}}" type="audio/mpeg">
                 </audio>
             </div>
-            <div class="col-2">
-                <button style="width: 120px;" onclick="return check_song()" id="button_upload" type="submit" class="btn btn-primary">Nhận dạng</button>
-            </div>
+            <!-- <div class="col-2">
+                <button style="width: 120px;" onclick="return check_song()" id="button_upload" type="submit" class="btn btn-primary">Làm mới</button>
+            </div> -->
         </div>
         <h3 style="text-align: center; margin-top: 10px;">Đoạn văn được dự đoán</h3>
         <div class="row content">
             <div class="col-12">
 
               <a id="saveToFile" href="/edit?id_audio={{id_audio}}" style="width: 100px; margin-left: 20px;"
-              onclick="return check_valid()" class="btn btn-primary float-right">Sửa</a>
+              onclick="return check_valid()" class="btn btn-warning float-right">Sửa</a>
 
               <div class="dropdown float-right">
                 <button style="width: 125px; margin-left: 20px;" class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" 
@@ -52,8 +52,8 @@
                   Tải văn bản
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  <a class="dropdown-item" onclick="return check_valid()" href="/export-files/{{id_audio}}">Tải file text</a>
-                  <a class="dropdown-item" onclick="return check_valid()" href="/export-doc/{{id_audio}}">Tải file doc</a>
+                  <a id="dowloadFileAudio" class="dropdown-item" onclick="return check_valid()" href="/export-files/{{id_audio}}">Tải file text</a>
+                  <a id="dowloadFileDoc" class="dropdown-item" onclick="return check_valid()" href="/export-doc/{{id_audio}}">Tải file doc</a>
                 </div>
               </div>
 
@@ -71,8 +71,8 @@
 
     </div>
 </div>
-<script src="./static/js/recorder.js"></script>
-<script src="./static/script.js"></script>
+<!-- <script src="./static/js/recorder.js"></script> -->
+
 <script>
     $(function() {
     $('#saveToFile').click(function(e) {
@@ -91,249 +91,6 @@
       var fileName = $(this).val().split("\\").pop();
       $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
     });
-    </script>
-<script>
-var Toast = Swal.mixin({
-  toast: true,
-  position: 'top-end',
-  showConfirmButton: false,
-  timer: 5000
-});
-var textFromFileLoaded = {{lyrics|safe}};
-var spellMistake =  {{spell_mistake|safe}} ;
-loadFileAsText()
-function playSong() {
-//   var valSong = document.getElementById('fileSong').value;
-  // var valLyric = document.getElementById('fileLyric').value;
-  var actStartPause = document.querySelectorAll(".activeStartPause");
-
-  // if (valSong == "" || valLyric == "") {
-  //   alert("Please import Song or Lyric");
-  //   return
-  // }
-  document.getElementById('audio_record').play();
-
-  for (let i = 0; i < actStartPause.length; i++) {
-    actStartPause[i].innerHTML = '<span onclick="pauseSong();" class="activeAction">Dừng</span>';
-  }
-  setTimeout(function(){
-  loadFileAsText();
-  }, 200); 
-  
-}
-function pauseSong() {
-  document.getElementById("audio_record").pause();
-
-  var actStartPause = document.querySelectorAll(".activeStartPause");
-  for (let i = 0; i < actStartPause.length; i++) {
-    actStartPause[i].innerHTML = '<span onclick="playSong();" class="activeAction">Phát</span>';
-  }
-}
-
-function check_song(){
-    var au = document.getElementById('audio_record');
-    var src = au.src;
-    console.log(src)
-    if (src.length < 1){
-        Toast.fire({
-        title: 'Bạn chưa ghi âm!',
-        icon: 'error'
-        });
-        return false;
-    };
-    Toast.fire({
-    title: 'Đang tiến hành nhận dạng!',
-    icon: 'info',
-    })
-    return true;
-}
-function check_valid() {
-  if(textFromFileLoaded.length > 0){
-    console.log("true");
-    return true
-  }
-  Toast.fire({
-  title: ' Đoạn văn bản nhận dạng trống !',
-  icon: 'error',
-    })
-  return false;
-}
-function loadFileAsText(){
-  var showLyricHtml = parseShowLyrics(textFromFileLoaded);
-  var addStyleLyric = new Array();
-  var linesongid = 1;
-  // console.log(showLyricHtml);
-  showLyricHtml = addHighlight(showLyricHtml, spellMistake);
-  showLyricHtml.forEach(result => {
-    result = "<span class='lineRunLyric' id='linesongid"+ linesongid +"'>" +result[2] + "</span>";
-    linesongid++;
-    addStyleLyric.push(result);
-  })
-  addStyleLyric = "<p>" + addStyleLyric + "</p>";
-  addStyleLyric = addStyleLyric.replaceAll("</span><br />,<span", "</span><br /><span");
-  document.getElementById("inputTextToSave").innerHTML = addStyleLyric;
-  runLyric(textFromFileLoaded);
-}
-
-function addHighlight(text, spellMistake){
-  spellMistake.forEach(result => {
-    // console.log(result);
-    reText = text[result['sentence']][2];
-    text[result['sentence']][2] = reText.substring(0, result['start_index']) + "<span class='highlight'>" + 
-      reText.substring(result['start_index'],result['end_index']) + "</span>" + reText.substring(result['end_index'], reText.length);
-    // console.log(text[result['sentence']][2]);
-  }
-  )
-  return text;
-}
-
-
-function runLyric(str) {
-  // clearInterval(intervalObj);
-  var myAudio = document.getElementById("audio_record");
-  var playSongButton = document.querySelectorAll(".activeStartPause");
-  var fileLyric = document.getElementById("fileLyric");
-  var actStop = document.querySelectorAll(".activeStop");
-
-  // debugger;
-  for (let i = 0; i < playSongButton.length; i++) {
-    playSongButton[i].addEventListener("click", function(){
-      clearInterval(intervalObj);
-      console.log("clearInterval1");
-    });
-  }
-
-  for (let i = 0; i < actStop.length; i++) {
-    actStop[i].addEventListener("click", function(){
-      var timeLyric = parseLyrics(str);
-      var totalLyric = timeLyric.length;
-      for (var index = 1; index <= totalLyric; index++) {
-        var lineLyric = document.getElementById("linesongid"+index);
-        lineLyric.style.color = "black";
-      }
-      clearInterval(intervalObj);
-      console.log("clearInterval2");
-    });
-  }
-
-  myAudio.addEventListener("ended", function(){
-    // console.log(str);
-    var timeLyric = parseLyrics(str);
-    var totalLyric = timeLyric.length;
-    for (var index = 1; index <= totalLyric; index++) {
-      var lineLyric = document.getElementById("linesongid"+index);
-      lineLyric.style.color = "black";
-    }
-
-    var actStartPause = document.querySelectorAll(".activeStartPause");
-    for (let i = 0; i < actStartPause.length; i++) {
-      actStartPause[i].innerHTML = '<span onclick="playSong();" class="activeAction">Start</span>';
-    }
-    clearInterval(intervalObj);
-    console.log("clearInterval5");
-  });
-  // console.log("fsdfds");
-  var intervalObj = setInterval(function(){
-
-    var getCurrentTime = parseFloat(myAudio.currentTime);
-    var timeLyric = parseLyrics(str);
-    var showCurTimeSong = document.querySelectorAll(".showCurrentTimeSong");
-
-    if (myAudio.currentTime == 0) {
-      for (var index = 1; index <= timeLyric.length; index++) {
-        var lineLyric = document.getElementById("linesongid"+index);
-        lineLyric.style.color = "black";
-      }
-    }
-    // console.log(timeLyric);
-    var linesongidBE = 1;
-    timeLyric.forEach(result => {
-      start = parseFloat(result[0]);
-      end = parseFloat(result[1]);
-      if (getCurrentTime > start){
-        var lineLyricChange;
-        var totalLyric = parseLyrics(str).length;
-        // console.log(totalLyric);
-        for (let index = 1; index < linesongidBE; index++) {
-          lineLyricChange = document.getElementById("linesongid"+index);
-          lineLyricChange.style.color = "#8d6e63";
-          
-        }
-        for (let index = (linesongidBE+1); index <= totalLyric; index++) {
-          lineLyricChange = document.getElementById("linesongid"+index);
-          lineLyricChange.style.color = "black";
-        }
-
-        var lineLyricStart = document.getElementById("linesongid"+linesongidBE);
-        var lineLyricPass = document.getElementById("linesongid"+(linesongidBE -1))
-        lineLyricStart.style.color = "#FF4000";
-        // lineLyricStart.style.fontWeight = "bold";
-        if (lineLyricPass) {
-          lineLyricPass.style.color = "#8d6e63";
-          // lineLyricPass.style.fontWeight = "normal";
-        }
-        };
-      linesongidBE++;
-    });
-  }, 5)
-}
-
-function simpleFormat(str) {
-  str = str.replace(/\r\n?/, "\n");
-  str = $.trim(str);
-  if (str.length > 0) {
-    str = str.replace(/\n\n+/g, '</p><p>');
-    str = str.replace(/\n/g, '<br />');
-    str = '<p>' + str + '</p>';
-  }
-  return str;
-}
-
-function handleFiles(event) {
-	var files = event.target.files;
-  $("#srcSong").attr("src", URL.createObjectURL(files[0]));
-  document.getElementById("audioSong").load();
-
-  var actStartPause = document.querySelectorAll(".activeStartPause");
-  for (let i = 0; i < actStartPause.length; i++) {
-    actStartPause[i].innerHTML = '<span onclick="playSong();" class="activeAction">Start</span>';
-  }
-}
-
-function parseLyrics(lyricImport) {
-  // var parseLyrics = simpleFormat(lyricImport)
-  // parseLyrics = parseLyrics.replaceAll("<p>", "");
-  // parseLyrics = parseLyrics.replaceAll("</p>", "");
-  var sPlit = lyricImport
-
-  var newArr = new Array();
-  sPlit.forEach(element => {
-    var array_lyrics = element.split(']')
-    var array_time = array_lyrics[0].split(',')
-    var start_time = array_time[0].replace('[', '')
-    var end_time = array_time[1].replace(']', '')
-    var lyric = array_lyrics[1]
-    var setSplit = ",,,.,,,"
-    element = start_time + setSplit + end_time + setSplit + lyric;
-
-    var createArr = element.split(setSplit);
-    newArr.push(createArr);
-  });
-  
-  var newArr1 = new Array();
-  newArr.forEach(result => {
-    if (result[2] !== "") {
-      newArr1.push(result)
-    }
-  });
-  return newArr1;
-}
-
-function parseShowLyrics(lyricImport) {
-  var showLyricHtml = parseLyrics(lyricImport);
-  // console.log(showLyricHtml);
-  // console.log(newArr);
-  return showLyricHtml;
-}
-</script>
+  </script>
+<script src="./static/script.js"></script>
 {% endblock %}
